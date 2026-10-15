@@ -152,11 +152,13 @@ export function AdminShell({
                 className="top-bar-avatar-btn"
                 onClick={onOpenSettings}
                 title="Admin Settings & Profile"
+                style={{ width: 32, height: 32, minWidth: 32, minHeight: 32, borderRadius: '50%', overflow: 'hidden', padding: 0, border: '2px solid #2563eb', flexShrink: 0, cursor: 'pointer' }}
               >
                 <img 
                   src={activeAdmin?.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=100&q=80'} 
                   alt={activeAdmin?.name} 
-                  className="top-avatar" 
+                  className="top-avatar"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }}
                 />
               </button>
             </div>

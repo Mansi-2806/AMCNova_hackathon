@@ -6803,20 +6803,195 @@ body {
   --admin-border: #e2e8f0;
 }
 
-.text-blue-primary {
-  color: var(--admin-blue-primary) !important;
+/* ========================================================
+   ANDROID HARDWARE SHELL & VIEWPORT
+   ======================================================== */
+.android-app-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px 8px;
+  background: #0b1120;
+  box-sizing: border-box;
 }
 
-/* Admin Shell Theme Overrides */
-.admin-theme-wrap .android-top-app-bar.admin-top-bar {
+.android-app-wrapper.mode-full-viewport {
+  padding: 0;
+  background: #f8fafc;
+}
+
+.frame-mode-toggle-bar.admin-mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 412px;
+  margin-bottom: 10px;
+  padding: 4px 6px;
+}
+
+.mode-full-viewport .frame-mode-toggle-bar.admin-mode-bar {
+  max-width: 100%;
+  padding: 8px 16px;
+  background: #0f172a;
+  margin-bottom: 0;
+}
+
+.admin-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #93c5fd;
+}
+
+.frame-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.frame-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.android-hardware-frame.admin-hardware-frame {
+  width: 100%;
+  max-width: 412px;
+  height: 860px;
+  max-height: calc(100vh - 56px);
+  background: #1e293b;
+  border-radius: 44px;
+  padding: 4px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 2px #334155;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.mode-full-viewport .android-hardware-frame.admin-hardware-frame {
+  max-width: 100%;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  border: none;
+}
+
+.android-screen-surface {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  background: #f8fafc;
+  border-radius: 40px;
+}
+
+.mode-full-viewport .android-screen-surface {
+  border-radius: 0;
+}
+
+/* ANDROID STATUS BAR */
+.android-status-bar.admin-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px 4px 18px;
+  font-size: 0.72rem;
+  color: #0f172a;
+  background: #ffffff;
+  flex-shrink: 0;
+  z-index: 50;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.android-camera-punchhole {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-lens-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #1e293b;
+}
+
+.status-indicators-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #0f172a;
+}
+
+.status-5g-text {
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.android-battery-badge {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+/* ANDROID TOP APP BAR & AVATAR FIX */
+.android-top-app-bar.admin-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  height: 56px;
+  min-height: 56px;
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.app-bar-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .admin-logo-icon {
   width: 32px;
   height: 32px;
+  min-width: 32px;
   border-radius: 10px;
   background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
   display: flex;
@@ -6826,38 +7001,300 @@ body {
   box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
 }
 
-.admin-tagline {
-  color: #2563eb !important;
-  font-weight: 700 !important;
+.app-bar-title-group {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
 }
 
-.admin-bell-btn {
+.app-bar-brand-name {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.admin-tagline {
+  font-size: 0.62rem;
+  color: #2563eb !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.app-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.top-bar-icon-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.top-bar-icon-btn:hover {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.top-bell-btn.admin-bell-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 8px;
   background: #eff6ff !important;
   border: 1px solid #bfdbfe !important;
   color: #1e40af !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  padding: 0;
 }
 
 .admin-badge-pill {
+  position: absolute;
+  top: -4px;
+  right: -4px;
   background: #ef4444 !important;
   color: #ffffff !important;
+  font-size: 0.58rem !important;
   font-weight: 800 !important;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #ffffff;
 }
 
-.admin-bottom-nav {
+/* AVATAR FIX: Strict sizing prevents giant Unsplash photo blowout */
+.top-bar-avatar-btn {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  border-radius: 50% !important;
+  border: 2px solid #2563eb !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.top-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* VIEWPORT SCROLL CONTENT */
+.android-viewport-content.admin-viewport-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px;
+  padding-bottom: 84px;
+}
+
+/* BOTTOM NAVIGATION */
+.android-bottom-nav.admin-bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(12px);
   border-top: 1px solid #e2e8f0 !important;
   box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.04) !important;
+  z-index: 40;
+  padding: 0 4px;
 }
 
-.admin-bottom-nav .nav-tab-btn.active .admin-icon-pill {
+.android-bottom-nav .nav-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  gap: 2px;
+}
+
+.android-bottom-nav .nav-icon-pill.admin-icon-pill {
+  width: 38px;
+  height: 28px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.android-bottom-nav .nav-tab-label {
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.android-bottom-nav .nav-tab-btn.active .admin-icon-pill {
   background: #eff6ff !important;
   color: #2563eb !important;
 }
 
-.admin-bottom-nav .nav-tab-btn.active .nav-tab-label {
+.android-bottom-nav .nav-tab-btn.active .nav-tab-label {
   color: #1e40af !important;
   font-weight: 700 !important;
 }
+
+.android-gesture-pill-area {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.android-gesture-pill {
+  width: 80px;
+  height: 3px;
+  background: #94a3b8;
+  border-radius: 9999px;
+}
+
+/* ========================================================
+   ADMIN DASHBOARD & 8 KPI CARDS GRID (FIXED LAYOUT)
+   ======================================================== */
+.admin-kpi-grid, .admin-kpis-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+  margin-bottom: 14px !important;
+}
+
+.admin-kpi-card {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 12px !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-align: left !important;
+}
+
+.admin-kpi-card:hover {
+  border-color: #bfdbfe !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08) !important;
+  transform: translateY(-1px) !important;
+}
+
+.kpi-icon-wrap {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.kpi-content-col {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.admin-kpi-label {
+  display: block !important;
+  font-size: 0.72rem !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+}
+
+.admin-kpi-value {
+  display: block !important;
+  font-size: 1.3rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  line-height: 1.15 !important;
+  margin: 1px 0 !important;
+}
+
+.admin-kpi-hint {
+  display: block !important;
+  font-size: 0.64rem !important;
+  color: #94a3b8 !important;
+  line-height: 1.2 !important;
+}
+
+/* COLOR SUBTLES */
+.bg-blue-subtle { background: #eff6ff !important; }
+.bg-emerald-subtle { background: #ecfdf5 !important; }
+.bg-indigo-subtle { background: #eef2ff !important; }
+.bg-cyan-subtle { background: #ecfeff !important; }
+.bg-rose-subtle { background: #fff1f2 !important; }
+.bg-amber-subtle { background: #fffbeb !important; }
+.bg-purple-subtle { background: #faf5ff !important; }
+
+.text-blue-primary { color: #2563eb !important; }
+.text-emerald { color: #059669 !important; }
+.text-indigo { color: #4f46e5 !important; }
+.text-cyan { color: #0891b2 !important; }
+.text-rose { color: #e11d48 !important; }
+.text-amber { color: #d97706 !important; }
+.text-purple { color: #9333ea !important; }
 
 /* Admin Card & Containers */
 .admin-card {
@@ -7048,65 +7485,6 @@ body {
   background: #eff6ff;
   border-color: #bfdbfe;
   color: #1e40af;
-}
-
-/* 8 KPI Cards Grid */
-.admin-kpis-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.admin-kpi-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 12px;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
-}
-
-.kpi-top-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.kpi-icon-pill {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.kpi-icon-pill.blue-pill { background: #eff6ff; color: #2563eb; }
-.kpi-icon-pill.green-pill { background: #ecfdf5; color: #059669; }
-.kpi-icon-pill.purple-pill { background: #f5f3ff; color: #7c3aed; }
-.kpi-icon-pill.amber-pill { background: #fffbeb; color: #d97706; }
-.kpi-icon-pill.red-pill { background: #fef2f2; color: #dc2626; }
-.kpi-icon-pill.teal-pill { background: #f0fdfa; color: #0d9488; }
-
-.kpi-metric-val {
-  font-size: 1.35rem;
-  font-weight: 900;
-  color: #0f172a;
-  line-height: 1.1;
-}
-
-.kpi-metric-title {
-  font-size: 0.72rem;
-  color: #64748b;
-  font-weight: 500;
-  margin-top: 3px;
-}
-
-.kpi-metric-sub {
-  font-size: 0.65rem;
-  color: #94a3b8;
-  margin-top: 2px;
 }
 
 /* Department Analytics Bars */
