@@ -11,6 +11,7 @@ import { ProjectDetailModal } from './components/ProjectDetailModal';
 import { NotificationDrawer } from './components/NotificationDrawer';
 import { LoginPage } from './components/LoginPage';
 import { SplashScreen } from './components/SplashScreen';
+import { EmployeePortalWrapper } from './components/employee/EmployeePortalWrapper';
 import { INITIAL_EMPLOYEES } from './data/employees';
 import { INITIAL_PROJECTS } from './data/projects';
 import { Signal, Wifi, Battery, ShieldAlert, X } from 'lucide-react';
@@ -288,9 +289,18 @@ export default function App() {
                 <div className="iphone-home-indicator" />
               </footer>
             </div>
+          ) : activeRole === 'employee' ? (
+            /* ============================================================
+               3A. KALYANI'S TALENTSYNC AI EMPLOYEE PORTAL
+               ============================================================ */
+            <EmployeePortalWrapper 
+              onLogout={handleLogout}
+              onSwitchToManager={() => setActiveRole('admin')}
+              initialEmployeeId={activeEmployeeId || 'EMP-101'}
+            />
           ) : (
             /* ============================================================
-               3. AUTHENTICATED WORKFORCEIQ PORTAL (MANAGER OR EMPLOYEE)
+               3B. WORKFORCEIQ MANAGER COMMAND CENTER (ADMIN / HR)
                ============================================================ */
             <div className="app-container">
               {/* Access Denied Guard Notification Banner */}
@@ -319,64 +329,54 @@ export default function App() {
                 unreadAlertCount={4}
                 onOpenAlerts={() => setIsNotificationsOpen(true)}
                 onLogout={handleLogout}
+                onSwitchRole={(role) => setActiveRole(role)}
               />
 
               {/* SCROLLABLE MAIN PORTAL CONTENT AREA */}
               <main className="app-scroll-content">
-                {activeRole === 'admin' ? (
-                  <>
-                    {adminTab === 'dashboard' && (
-                      <AdminDashboard 
-                        employees={employees}
-                        projects={projects}
-                        onNavigateTab={(tab) => handleTabChange(tab)}
-                        onSelectProject={(proj) => setSelectedProjectForDetail(proj)}
-                        onOpenWorkforceFilter={(filter) => {
-                          setWorkforceFilterTier(filter);
-                          handleTabChange('workforce');
-                        }}
-                      />
-                    )}
-
-                    {adminTab === 'workforce' && (
-                      <WorkforceView 
-                        employees={employees}
-                        initialFilter={workforceFilterTier}
-                        onRebalanceWorkload={handleRebalanceWorkload}
-                      />
-                    )}
-
-                    {adminTab === 'projects' && (
-                      <ProjectsView 
-                        projects={projects}
-                        employees={employees}
-                        onSelectProject={(proj) => setSelectedProjectForDetail(proj)}
-                        onCreateProject={handleCreateProject}
-                      />
-                    )}
-
-                    {adminTab === 'intelligence' && (
-                      <IntelligenceView 
-                        employees={employees}
-                        projects={projects}
-                        onRebalanceWorkload={handleRebalanceWorkload}
-                        onSelectProject={(proj) => setSelectedProjectForDetail(proj)}
-                      />
-                    )}
-
-                    {adminTab === 'simulator' && (
-                      <SimulatorView 
-                        projects={projects}
-                        employees={employees}
-                      />
-                    )}
-                  </>
-                ) : (
-                  /* EMPLOYEE PERSONAL PORTAL */
-                  <EmployeeView 
-                    activeEmployee={activeEmployee}
+                {adminTab === 'dashboard' && (
+                  <AdminDashboard 
+                    employees={employees}
                     projects={projects}
-                    currentTab={employeeTab}
+                    onNavigateTab={(tab) => handleTabChange(tab)}
+                    onSelectProject={(proj) => setSelectedProjectForDetail(proj)}
+                    onOpenWorkforceFilter={(filter) => {
+                      setWorkforceFilterTier(filter);
+                      handleTabChange('workforce');
+                    }}
+                  />
+                )}
+
+                {adminTab === 'workforce' && (
+                  <WorkforceView 
+                    employees={employees}
+                    initialFilter={workforceFilterTier}
+                    onRebalanceWorkload={handleRebalanceWorkload}
+                  />
+                )}
+
+                {adminTab === 'projects' && (
+                  <ProjectsView 
+                    projects={projects}
+                    employees={employees}
+                    onSelectProject={(proj) => setSelectedProjectForDetail(proj)}
+                    onCreateProject={handleCreateProject}
+                  />
+                )}
+
+                {adminTab === 'intelligence' && (
+                  <IntelligenceView 
+                    employees={employees}
+                    projects={projects}
+                    onRebalanceWorkload={handleRebalanceWorkload}
+                    onSelectProject={(proj) => setSelectedProjectForDetail(proj)}
+                  />
+                )}
+
+                {adminTab === 'simulator' && (
+                  <SimulatorView 
+                    projects={projects}
+                    employees={employees}
                   />
                 )}
               </main>

@@ -19,7 +19,8 @@ export function Header({
   employees,
   unreadAlertCount,
   onOpenAlerts,
-  onLogout
+  onLogout,
+  onSwitchRole
 }) {
   return (
     <div className="app-top-nav-zone">
@@ -59,8 +60,20 @@ export function Header({
             </div>
           </div>
 
-          {/* Header Controls: Notifications, Logout */}
+          {/* Header Controls: Switch Role, Notifications, Logout */}
           <div className="header-actions">
+            {/* Quick Switch to Employee Portal */}
+            {activeRole === 'admin' && onSwitchRole && (
+              <button 
+                className="icon-btn" 
+                onClick={() => onSwitchRole('employee')}
+                title="Switch to Employee Portal (TalentSync AI)"
+                style={{ color: '#0f766e', borderColor: 'rgba(20, 184, 166, 0.4)' }}
+              >
+                <UserCheck size={15} />
+              </button>
+            )}
+
             {/* Notifications */}
             {activeRole === 'admin' && (
               <button 
