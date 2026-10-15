@@ -13,7 +13,8 @@ import {
   Minimize2,
   FolderKanban,
   FileText,
-  Settings
+  Settings,
+  LogOut
 } from 'lucide-react';
 
 export function AdminShell({
@@ -25,6 +26,7 @@ export function AdminShell({
   onOpenSettings,
   onOpenProjects,
   onOpenRequests,
+  onLogout,
   children
 }) {
   const [currentTime, setCurrentTime] = useState('9:41');
@@ -49,23 +51,38 @@ export function AdminShell({
           <span>TalentSync AI • Admin / Workforce Manager Android App</span>
         </div>
 
-        <button 
-          type="button" 
-          className="frame-toggle-btn"
-          onClick={() => setIsDeviceFrameMode(!isDeviceFrameMode)}
-        >
-          {isDeviceFrameMode ? (
-            <>
-              <Maximize2 size={13} />
-              <span>Full Screen View</span>
-            </>
-          ) : (
-            <>
-              <Minimize2 size={13} />
-              <span>Android Phone Frame</span>
-            </>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {onLogout && (
+            <button 
+              type="button" 
+              className="frame-toggle-btn"
+              onClick={onLogout}
+              style={{ color: '#f43f5e', borderColor: 'rgba(244, 63, 94, 0.4)' }}
+              title="Log out of Manager Portal"
+            >
+              <LogOut size={13} />
+              <span>Log Out</span>
+            </button>
           )}
-        </button>
+
+          <button 
+            type="button" 
+            className="frame-toggle-btn"
+            onClick={() => setIsDeviceFrameMode(!isDeviceFrameMode)}
+          >
+            {isDeviceFrameMode ? (
+              <>
+                <Maximize2 size={13} />
+                <span>Full Screen View</span>
+              </>
+            ) : (
+              <>
+                <Minimize2 size={13} />
+                <span>Android Phone Frame</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Android Hardware Frame */}
@@ -161,6 +178,24 @@ export function AdminShell({
                   style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }}
                 />
               </button>
+
+              {/* Log Out Button */}
+              {onLogout && (
+                <button 
+                  type="button" 
+                  className="top-bar-icon-btn admin-logout-btn"
+                  onClick={onLogout}
+                  title="Log Out of Manager Portal"
+                  style={{
+                    color: '#f43f5e',
+                    borderColor: 'rgba(244, 63, 94, 0.35)',
+                    background: 'rgba(244, 63, 94, 0.1)',
+                    marginLeft: '2px'
+                  }}
+                >
+                  <LogOut size={16} />
+                </button>
+              )}
             </div>
           </div>
 

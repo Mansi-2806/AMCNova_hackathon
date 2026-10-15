@@ -136,6 +136,7 @@ export default function App() {
           onOpenSettings={() => setIsSettingsModalOpen(true)}
           onOpenProjects={() => setIsProjectsModalOpen(true)}
           onOpenRequests={() => setIsRequestsModalOpen(true)}
+          onLogout={handleAdminLogout}
         >
           {/* TAB 1: HOME — WORKFORCE OVERVIEW (Section 4) */}
           {adminTab === 'dashboard' && (
