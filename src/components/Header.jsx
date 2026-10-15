@@ -22,8 +22,8 @@ export function Header({
   onLogout
 }) {
   return (
-    <>
-      {/* Mobile Top Status Bar */}
+    <div className="app-top-nav-zone">
+      {/* Mobile Top Status Bar with Static Dynamic Island */}
       <div className="mobile-status-bar">
         <span className="status-time">9:41</span>
         <div className="mobile-dynamic-island">
@@ -111,6 +111,6 @@ export function Header({
           </div>
         )}
       </header>
-    </>
+    </div>
   );
 }
