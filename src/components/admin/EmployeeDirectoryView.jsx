@@ -172,7 +172,7 @@ export function EmployeeDirectoryView({ employees = [], projects = [] }) {
           </div>
           <button 
             type="button" 
-            className="admin-btn-primary add-emp-btn"
+            className="admin-btn admin-btn-primary add-emp-btn"
             onClick={handleOpenAdd}
           >
             <Plus size={16} />
@@ -274,7 +274,12 @@ export function EmployeeDirectoryView({ employees = [], projects = [] }) {
               >
                 <div className="emp-card-top-row">
                   <div className="emp-avatar-box">
-                    <img src={emp.avatar} alt={emp.name} className="dir-avatar" />
+                    <img 
+                      src={emp.avatar} 
+                      alt={emp.name} 
+                      className="dir-avatar" 
+                      style={{ width: 48, height: 48, minWidth: 48, minHeight: 48, maxWidth: 48, maxHeight: 48, borderRadius: 14, objectFit: 'cover', display: 'block' }}
+                    />
                     {isDeactivated && <span className="deactivated-badge">Inactive</span>}
                   </div>
 
@@ -374,6 +379,7 @@ export function EmployeeDirectoryView({ employees = [], projects = [] }) {
                   src={selectedEmployeeForDetail.avatar} 
                   alt={selectedEmployeeForDetail.name} 
                   className="modal-emp-avatar" 
+                  style={{ width: 72, height: 72, minWidth: 72, minHeight: 72, maxWidth: 72, maxHeight: 72, borderRadius: '50%', objectFit: 'cover', display: 'block', margin: '0 auto 10px auto' }}
                 />
                 <h3 className="modal-emp-name">{selectedEmployeeForDetail.name}</h3>
                 <span className="modal-emp-role">{selectedEmployeeForDetail.role}</span>
