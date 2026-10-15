@@ -1,32 +1,35 @@
-// TalentSync AI — Employee Portal Reactive Persistent State & Backend Synchronization Store
+// TalentSync AI — Centralized Reactive Store (Shared between Admin & Employee Portals)
 import {
+  ADMIN_USERS,
   INITIAL_EMPLOYEES_DATA,
   INITIAL_PROJECTS_DATA,
   INITIAL_TASKS_DATA,
   INITIAL_SUPPORT_REQUESTS,
+  INITIAL_RESOURCE_ALERTS,
+  INITIAL_AUDIT_LOG,
   INITIAL_NOTIFICATIONS,
   INITIAL_LEARNING_COURSES
-} from './talentSyncData';
+} from './talentSyncData.js';
 
 const STORAGE_KEYS = {
-  EMPLOYEES: 'talentsync_employees_v1',
-  PROJECTS: 'talentsync_projects_v1',
-  TASKS: 'talentsync_tasks_v1',
-  REQUESTS: 'talentsync_requests_v1',
-  NOTIFICATIONS: 'talentsync_notifications_v1',
-  LEARNING: 'talentsync_learning_v1',
-  ACTIVE_USER: 'talentsync_active_user_v1',
-  THEME: 'talentsync_theme_v1'
+  EMPLOYEES: 'talentsync_employees_v2',
+  PROJECTS: 'talentsync_projects_v2',
+  TASKS: 'talentsync_tasks_v2',
+  REQUESTS: 'talentsync_requests_v2',
+  ALERTS: 'talentsync_alerts_v2',
+  AUDIT: 'talentsync_audit_v2',
+  NOTIFICATIONS: 'talentsync_notifications_v2',
+  LEARNING: 'talentsync_learning_v2',
+  ACTIVE_USER: 'talentsync_active_user_v2',
+  ADMIN_SETTINGS: 'talentsync_admin_settings_v2'
 };
 
-// Safe LocalStorage helpers
 function loadFromStorage(key, defaultValue) {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return defaultValue;
     return JSON.parse(raw);
   } catch (e) {
-    console.warn(`[TalentSyncStore] Failed reading ${key}:`, e);
     return defaultValue;
   }
 }
@@ -34,24 +37,28 @@ function loadFromStorage(key, defaultValue) {
 function saveToStorage(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.warn(`[TalentSyncStore] Failed writing ${key}:`, e);
-  }
+  } catch (e) {}
 }
 
-// In-memory runtime cache initialized from storage or defaults
 let employeesCache = loadFromStorage(STORAGE_KEYS.EMPLOYEES, INITIAL_EMPLOYEES_DATA);
 let projectsCache = loadFromStorage(STORAGE_KEYS.PROJECTS, INITIAL_PROJECTS_DATA);
 let tasksCache = loadFromStorage(STORAGE_KEYS.TASKS, INITIAL_TASKS_DATA);
 let requestsCache = loadFromStorage(STORAGE_KEYS.REQUESTS, INITIAL_SUPPORT_REQUESTS);
+let alertsCache = loadFromStorage(STORAGE_KEYS.ALERTS, INITIAL_RESOURCE_ALERTS);
+let auditCache = loadFromStorage(STORAGE_KEYS.AUDIT, INITIAL_AUDIT_LOG);
 let notificationsCache = loadFromStorage(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
 let learningCache = loadFromStorage(STORAGE_KEYS.LEARNING, INITIAL_LEARNING_COURSES);
+let adminSettingsCache = loadFromStorage(STORAGE_KEYS.ADMIN_SETTINGS, {
+  overloadThreshold: 85,
+  underutilizedThreshold: 30,
+  pushAlertsEnabled: true,
+  emailDigestsEnabled: true
+});
 
-// Subscriptions listener array
 const listeners = new Set();
 function notifyListeners() {
   listeners.forEach(fn => {
-    try { fn(); } catch (err) { console.error('[TalentSyncStore] Listener error:', err); }
+    try { fn(); } catch (err) {}
   });
 }
 
@@ -61,12 +68,14 @@ export const talentSyncStore = {
     return () => listeners.delete(fn);
   },
 
-  // RESET TO DEMO DATA
+  // RESET DATABASE
   resetToDemoData() {
     employeesCache = JSON.parse(JSON.stringify(INITIAL_EMPLOYEES_DATA));
     projectsCache = JSON.parse(JSON.stringify(INITIAL_PROJECTS_DATA));
     tasksCache = JSON.parse(JSON.stringify(INITIAL_TASKS_DATA));
     requestsCache = JSON.parse(JSON.stringify(INITIAL_SUPPORT_REQUESTS));
+    alertsCache = JSON.parse(JSON.stringify(INITIAL_RESOURCE_ALERTS));
+    auditCache = JSON.parse(JSON.stringify(INITIAL_AUDIT_LOG));
     notificationsCache = JSON.parse(JSON.stringify(INITIAL_NOTIFICATIONS));
     learningCache = JSON.parse(JSON.stringify(INITIAL_LEARNING_COURSES));
 
@@ -74,6 +83,8 @@ export const talentSyncStore = {
     saveToStorage(STORAGE_KEYS.PROJECTS, projectsCache);
     saveToStorage(STORAGE_KEYS.TASKS, tasksCache);
     saveToStorage(STORAGE_KEYS.REQUESTS, requestsCache);
+    saveToStorage(STORAGE_KEYS.ALERTS, alertsCache);
+    saveToStorage(STORAGE_KEYS.AUDIT, auditCache);
     saveToStorage(STORAGE_KEYS.NOTIFICATIONS, notificationsCache);
     saveToStorage(STORAGE_KEYS.LEARNING, learningCache);
 
@@ -84,6 +95,8 @@ export const talentSyncStore = {
   getActiveSession() {
     return loadFromStorage(STORAGE_KEYS.ACTIVE_USER, {
       isLoggedIn: true,
+      role: 'admin',
+      adminUser: ADMIN_USERS[0],
       employeeId: 'EMP-101'
     });
   },
@@ -93,323 +106,496 @@ export const talentSyncStore = {
     notifyListeners();
   },
 
-  // EMPLOYEES
-  getEmployee(empId = 'EMP-101') {
-    return employeesCache.find(e => e.id === empId) || employeesCache[0];
+  getAdminUsers() {
+    return ADMIN_USERS;
   },
 
+  // ADMIN SETTINGS
+  getAdminSettings() {
+    return { ...adminSettingsCache };
+  },
+
+  updateAdminSettings(updates) {
+    adminSettingsCache = { ...adminSettingsCache, ...updates };
+    saveToStorage(STORAGE_KEYS.ADMIN_SETTINGS, adminSettingsCache);
+    this.addAuditLogEntry({
+      action: 'Settings Updated',
+      target: 'System Settings',
+      details: `Workload overload threshold set to ${adminSettingsCache.overloadThreshold}%.`,
+      decision: 'System Update'
+    });
+    notifyListeners();
+  },
+
+  // 8 DYNAMIC ADMIN KPIS (Derived strictly from underlying data)
+  calculateAdminKPIs() {
+    const totalEmployees = employeesCache.filter(e => e.status !== 'Deactivated').length;
+    const availableEmployees = employeesCache.filter(e => e.status !== 'Deactivated' && e.workload <= adminSettingsCache.underutilizedThreshold).length;
+    const activeProjects = projectsCache.filter(p => p.status === 'Active').length;
+    
+    // Utilization
+    const totalWorkload = employeesCache.filter(e => e.status !== 'Deactivated').reduce((sum, e) => sum + (e.workload || 0), 0);
+    const avgUtilization = totalEmployees > 0 ? Math.round(totalWorkload / totalEmployees) : 0;
+
+    const overloadedEmployees = employeesCache.filter(e => e.status !== 'Deactivated' && e.workload >= adminSettingsCache.overloadThreshold).length;
+    const underutilizedEmployees = employeesCache.filter(e => e.status !== 'Deactivated' && e.workload <= adminSettingsCache.underutilizedThreshold).length;
+    const pendingRequests = requestsCache.filter(r => r.status === 'Submitted' || r.status === 'Under Review').length;
+
+    // Unfilled Project Positions
+    const unfilledPositions = projectsCache.reduce((sum, p) => {
+      const needed = p.requiredTeamSize || 0;
+      const assigned = (p.assignedEmployees || []).length;
+      return sum + Math.max(0, needed - assigned);
+    }, 0);
+
+    return {
+      totalEmployees,
+      availableEmployees,
+      activeProjects,
+      workforceUtilizationPct: avgUtilization,
+      overloadedEmployees,
+      underutilizedEmployees,
+      pendingRequests,
+      unfilledPositions
+    };
+  },
+
+  // DEPARTMENT ANALYTICS
+  getDepartmentDistribution() {
+    const depts = {};
+    employeesCache.filter(e => e.status !== 'Deactivated').forEach(e => {
+      const d = e.department.split('&')[0].trim();
+      if (!depts[d]) depts[d] = { count: 0, totalWorkload: 0 };
+      depts[d].count += 1;
+      depts[d].totalWorkload += e.workload || 0;
+    });
+
+    return Object.keys(depts).map(name => ({
+      name,
+      count: depts[name].count,
+      avgWorkload: Math.round(depts[name].totalWorkload / depts[name].count)
+    }));
+  },
+
+  // EMPLOYEES CRUD
   getAllEmployees() {
     return [...employeesCache];
   },
 
-  updateProfile(empId, fields) {
-    employeesCache = employeesCache.map(emp => {
-      if (emp.id === empId) {
-        return { ...emp, ...fields };
-      }
-      return emp;
-    });
-    saveToStorage(STORAGE_KEYS.EMPLOYEES, employeesCache);
-    notifyListeners();
+  getEmployee(empId) {
+    return employeesCache.find(e => e.id === empId);
   },
 
-  addSkill(empId, { name, category = 'Technical', proficiency = 'Intermediate', years = 1 }) {
-    const newSkill = {
-      id: `SK-${Date.now().toString().slice(-4)}`,
-      name,
-      category,
-      proficiency,
-      years: Number(years),
-      isVerified: false,
-      verificationStatus: 'Self-Reported',
-      dateAdded: new Date().toISOString().split('T')[0]
+  addEmployee(empData) {
+    const newId = `EMP-${100 + employeesCache.length + 1}`;
+    const newEmp = {
+      id: newId,
+      name: empData.name,
+      role: empData.role,
+      department: empData.department,
+      location: empData.location || 'Remote',
+      totalExperience: Number(empData.totalExperience || 3),
+      avatar: empData.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+      email: empData.email || `${empData.name.toLowerCase().replace(/\s+/g, '.')}@talentsync.ai`,
+      phone: empData.phone || '+1 555 0100',
+      emergencyContact: empData.emergencyContact || 'None',
+      summary: empData.summary || 'Newly joined workforce specialist.',
+      workload: Number(empData.workload || 0),
+      plannedCapacityHours: 40,
+      assignedHours: Math.round((Number(empData.workload || 0) / 100) * 40),
+      availableHours: Math.max(0, 40 - Math.round((Number(empData.workload || 0) / 100) * 40)),
+      availability: Math.max(0, 100 - Number(empData.workload || 0)),
+      activeProjectIds: [],
+      status: 'Active',
+      skills: empData.skills || [],
+      certifications: [],
+      trainingRecords: [],
+      weeklyWorkloadTrends: [],
+      schedulingConflicts: []
     };
 
+    employeesCache = [newEmp, ...employeesCache];
+    saveToStorage(STORAGE_KEYS.EMPLOYEES, employeesCache);
+
+    this.addAuditLogEntry({
+      action: 'Employee Added',
+      target: `${newEmp.name} (${newId})`,
+      details: `Added ${newEmp.role} to ${newEmp.department}.`,
+      decision: 'Created'
+    });
+
+    notifyListeners();
+    return newEmp;
+  },
+
+  updateEmployee(empId, updates) {
     employeesCache = employeesCache.map(emp => {
       if (emp.id === empId) {
-        return {
-          ...emp,
-          skills: [newSkill, ...emp.skills]
-        };
+        const updated = { ...emp, ...updates };
+        if (updates.workload !== undefined) {
+          updated.assignedHours = Math.round((updates.workload / 100) * 40);
+          updated.availableHours = Math.max(0, 40 - updated.assignedHours);
+          updated.availability = Math.max(0, 100 - updates.workload);
+        }
+        return updated;
       }
       return emp;
     });
     saveToStorage(STORAGE_KEYS.EMPLOYEES, employeesCache);
 
-    // Create confirmation in-app notification
-    this.addNotification({
-      employeeId: empId,
-      title: 'Skill Added to Profile',
-      message: `"${name}" added as self-reported (${proficiency}). You can submit it for official verification anytime.`,
-      type: 'learning',
-      linkTarget: { tab: 'profile', itemId: 'skills' }
+    this.addAuditLogEntry({
+      action: 'Employee Updated',
+      target: empId,
+      details: `Updated details for ${empId}.`,
+      decision: 'Updated'
     });
 
     notifyListeners();
-    return newSkill;
   },
 
-  submitSkillForVerification(empId, skillId) {
-    let skillName = '';
+  deactivateEmployee(empId) {
     employeesCache = employeesCache.map(emp => {
       if (emp.id === empId) {
-        return {
-          ...emp,
-          skills: emp.skills.map(s => {
-            if (s.id === skillId) {
-              skillName = s.name;
-              return { ...s, verificationStatus: 'Pending Verification' };
-            }
-            return s;
-          })
-        };
+        return { ...emp, status: emp.status === 'Deactivated' ? 'Active' : 'Deactivated' };
       }
       return emp;
     });
     saveToStorage(STORAGE_KEYS.EMPLOYEES, employeesCache);
 
-    // Automatically create a Support Request in the support center!
-    this.createSupportRequest({
-      employeeId: empId,
-      type: 'Skill Verification',
-      projectId: null,
-      projectName: 'N/A',
-      priority: 'Medium',
-      description: `Verification request for skill: ${skillName}`,
-      reason: `Employee submitted practical code artifacts and project experience for verification.`
+    this.addAuditLogEntry({
+      action: 'Employee Account Status Changed',
+      target: empId,
+      details: `Account toggle for ${empId}.`,
+      decision: 'Status Toggle'
     });
 
     notifyListeners();
   },
 
-  addCertification(empId, certData) {
-    const newCert = {
-      id: `CERT-${Date.now().toString().slice(-4)}`,
-      name: certData.name,
-      issuer: certData.issuer,
-      issueDate: certData.issueDate || new Date().toISOString().split('T')[0],
-      expiryDate: certData.expiryDate || 'No Expiry',
-      credentialId: certData.credentialId || `CRED-${Math.floor(Math.random() * 899999 + 100000)}`,
-      verified: false
-    };
-
-    employeesCache = employeesCache.map(emp => {
-      if (emp.id === empId) {
-        return {
-          ...emp,
-          certifications: [newCert, ...emp.certifications]
-        };
-      }
-      return emp;
-    });
-    saveToStorage(STORAGE_KEYS.EMPLOYEES, employeesCache);
-
-    // Auto submit verification request
-    this.createSupportRequest({
-      employeeId: empId,
-      type: 'Skill Verification',
-      projectId: null,
-      projectName: 'N/A',
-      priority: 'Medium',
-      description: `Official verification for certification: ${certData.name} (${certData.issuer})`,
-      reason: `Credential ID: ${newCert.credentialId}`
-    });
-
-    notifyListeners();
-    return newCert;
-  },
-
-  // TASKS
-  getTasksForEmployee(empId = 'EMP-101') {
-    return tasksCache.filter(t => t.assignedTo === empId);
-  },
-
-  getTaskById(taskId) {
-    return tasksCache.find(t => t.id === taskId);
-  },
-
-  updateTask(taskId, updates) {
-    const oldTask = tasksCache.find(t => t.id === taskId);
-    if (!oldTask) return;
-
-    const newHistory = [...(oldTask.history || [])];
-    const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 16);
-
-    if (updates.status && updates.status !== oldTask.status) {
-      newHistory.unshift({
-        timestamp: nowStr,
-        action: 'Status Changed',
-        details: `Status transitioned from "${oldTask.status}" to "${updates.status}"`
-      });
-    }
-
-    if (updates.progress !== undefined && updates.progress !== oldTask.progress) {
-      newHistory.unshift({
-        timestamp: nowStr,
-        action: 'Progress Updated',
-        details: `Progress adjusted from ${oldTask.progress}% to ${updates.progress}%`
-      });
-    }
-
-    if (updates.isBlocked && !oldTask.isBlocked) {
-      newHistory.unshift({
-        timestamp: nowStr,
-        action: 'Blocker Flagged',
-        details: `Reported blocker: "${updates.blockerReason || 'Unspecified'}"`
-      });
-      // Generate notification
-      this.addNotification({
-        employeeId: oldTask.assignedTo,
-        title: 'Task Blocker Recorded',
-        message: `Blocker recorded for ${oldTask.title}. Project Manager notified.`,
-        type: 'task',
-        linkTarget: { tab: 'tasks', itemId: taskId }
-      });
-    }
-
-    if (updates.hasDeadlineRisk && !oldTask.hasDeadlineRisk) {
-      newHistory.unshift({
-        timestamp: nowStr,
-        action: 'Deadline Risk Raised',
-        details: `Risk flagged: "${updates.deadlineRiskReason || 'At risk of missing milestone'}"`
-      });
-    }
-
-    tasksCache = tasksCache.map(task => {
-      if (task.id === taskId) {
-        return {
-          ...task,
-          ...updates,
-          history: newHistory,
-          syncStatus: 'synced'
-        };
-      }
-      return task;
-    });
-
-    saveToStorage(STORAGE_KEYS.TASKS, tasksCache);
-    notifyListeners();
-  },
-
-  addTaskNote(taskId, noteText, author = 'Rahul Sharma') {
-    const newNote = {
-      id: `n-${Date.now().toString().slice(-4)}`,
-      author,
-      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      text: noteText
-    };
-
-    tasksCache = tasksCache.map(task => {
-      if (task.id === taskId) {
-        return {
-          ...task,
-          notes: [...(task.notes || []), newNote],
-          history: [
-            {
-              timestamp: newNote.timestamp,
-              action: 'Note Added',
-              details: `"${noteText.slice(0, 40)}${noteText.length > 40 ? '...' : ''}"`
-            },
-            ...(task.history || [])
-          ]
-        };
-      }
-      return task;
-    });
-
-    saveToStorage(STORAGE_KEYS.TASKS, tasksCache);
-    notifyListeners();
-  },
-
-  toggleTaskAcceptanceCriterion(taskId, criterionId) {
-    tasksCache = tasksCache.map(task => {
-      if (task.id === taskId) {
-        const updatedCriteria = (task.acceptanceCriteria || []).map(ac => {
-          if (ac.id === criterionId) {
-            return { ...ac, completed: !ac.completed };
-          }
-          return ac;
-        });
-
-        // Recalculate progress optionally if criteria driven
-        const total = updatedCriteria.length;
-        const done = updatedCriteria.filter(c => c.completed).length;
-        const autoProgress = total > 0 ? Math.round((done / total) * 100) : task.progress;
-
-        return {
-          ...task,
-          acceptanceCriteria: updatedCriteria,
-          progress: autoProgress,
-          status: autoProgress === 100 ? 'Completed' : (task.status === 'Completed' ? 'In Progress' : task.status)
-        };
-      }
-      return task;
-    });
-
-    saveToStorage(STORAGE_KEYS.TASKS, tasksCache);
-    notifyListeners();
-  },
-
-  // PROJECTS
-  getProjectsForEmployee(empId = 'EMP-101') {
-    const emp = this.getEmployee(empId);
-    if (!emp) return [];
-    return projectsCache.filter(p => (emp.activeProjectIds || []).includes(p.id));
-  },
-
+  // PROJECTS CRUD
   getAllProjects() {
     return [...projectsCache];
   },
 
-  // SUPPORT REQUESTS
-  getRequestsForEmployee(empId = 'EMP-101') {
-    return requestsCache.filter(r => r.employeeId === empId);
-  },
-
-  createSupportRequest(reqData) {
-    const count = requestsCache.length + 1;
-    const reqId = `REQ-2026-${String(count).padStart(3, '0')}`;
-    const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 16);
-
-    const newRequest = {
-      id: reqId,
-      employeeId: reqData.employeeId || 'EMP-101',
-      type: reqData.type || 'Workload Support',
-      projectId: reqData.projectId || null,
-      projectName: reqData.projectName || (reqData.projectId ? 'Project ' + reqData.projectId : 'General'),
-      priority: reqData.priority || 'Medium',
-      description: reqData.description,
-      reason: reqData.reason || '',
-      status: 'Submitted',
-      submittedAt: nowStr,
-      latestResponse: 'Received by TalentSync Workforce Engine. Pending review by Workforce Manager.',
-      resolutionDetails: null,
-      history: [
-        { timestamp: nowStr, action: 'Request Submitted', by: 'Authenticated Employee' }
-      ]
+  createProject(projData) {
+    const count = projectsCache.length + 1;
+    const newId = `PRJ-${String(count).padStart(3, '0')}`;
+    const newProj = {
+      id: newId,
+      name: projData.name,
+      client: projData.client || 'Enterprise Internal',
+      description: projData.description,
+      objectives: projData.objectives || ['Deliver scheduled milestones on time and within budget.'],
+      status: projData.status || 'Active',
+      stage: 'Planning & Staffing',
+      priority: projData.priority || 'High',
+      employeeRole: 'Core Team',
+      responsibilities: [],
+      progress: 0,
+      nextMilestone: projData.nextMilestone || 'Kickoff & Requirements',
+      milestoneDate: projData.milestoneDate || '2026-11-15',
+      deadline: projData.deadline || '2027-02-28',
+      startDate: projData.startDate || new Date().toISOString().split('T')[0],
+      requiredTeamSize: Number(projData.requiredTeamSize || 4),
+      assignedEmployees: projData.assignedEmployees || [],
+      teamMembers: (projData.assignedEmployees || []).map(id => {
+        const emp = this.getEmployee(id);
+        return { id, name: emp?.name, role: emp?.role, avatar: emp?.avatar };
+      }),
+      requiredSkills: projData.requiredSkills || [],
+      announcements: [],
+      resources: []
     };
 
-    requestsCache = [newRequest, ...requestsCache];
-    saveToStorage(STORAGE_KEYS.REQUESTS, requestsCache);
+    projectsCache = [newProj, ...projectsCache];
+    saveToStorage(STORAGE_KEYS.PROJECTS, projectsCache);
 
-    // Create in-app notification confirming submission
-    this.addNotification({
-      employeeId: newRequest.employeeId,
-      title: `Support Request Logged (${reqId})`,
-      message: `Your "${newRequest.type}" request was registered and queued for manager review.`,
-      type: 'request',
-      linkTarget: { tab: 'requests', itemId: reqId }
+    this.addAuditLogEntry({
+      action: 'Project Created',
+      target: `${newProj.name} (${newId})`,
+      details: `Created project with ${newProj.requiredTeamSize} required positions.`,
+      decision: 'Created'
     });
 
     notifyListeners();
-    return newRequest;
+    return newProj;
   },
 
-  // NOTIFICATIONS
-  getNotificationsForEmployee(empId = 'EMP-101') {
-    return notificationsCache.filter(n => n.employeeId === empId);
+  updateProject(projectId, updates) {
+    projectsCache = projectsCache.map(p => {
+      if (p.id === projectId) {
+        return { ...p, ...updates };
+      }
+      return p;
+    });
+    saveToStorage(STORAGE_KEYS.PROJECTS, projectsCache);
+    notifyListeners();
   },
 
+  // AI TEAM ALLOCATION
+  allocateTeamToProject(projectId, employeeIds) {
+    const proj = projectsCache.find(p => p.id === projectId);
+    if (!proj) return;
+
+    // 1. Update Project assigned employees
+    const members = employeeIds.map(id => {
+      const emp = this.getEmployee(id);
+      return { id, name: emp?.name, role: emp?.role, avatar: emp?.avatar };
+    });
+
+    projectsCache = projectsCache.map(p => {
+      if (p.id === projectId) {
+        return {
+          ...p,
+          assignedEmployees: employeeIds,
+          teamMembers: members,
+          status: 'Active',
+          stage: employeeIds.length >= (p.requiredTeamSize || 4) ? 'Fully Staffed' : 'Partially Staffed'
+        };
+      }
+      return p;
+    });
+
+    // 2. Update Employees workload (+20% for each assignment if not already in)
+    employeesCache = employeesCache.map(emp => {
+      if (employeeIds.includes(emp.id)) {
+        const isNew = !(emp.activeProjectIds || []).includes(projectId);
+        const addedLoad = isNew ? 20 : 0;
+        const newWorkload = Math.min(100, (emp.workload || 0) + addedLoad);
+        const newAssignedHours = Math.round((newWorkload / 100) * 40);
+        return {
+          ...emp,
+          workload: newWorkload,
+          assignedHours: newAssignedHours,
+          availableHours: Math.max(0, 40 - newAssignedHours),
+          availability: Math.max(0, 100 - newWorkload),
+          activeProjectIds: Array.from(new Set([...(emp.activeProjectIds || []), projectId]))
+        };
+      }
+      return emp;
+    });
+
+    saveToStorage(STORAGE_KEYS.PROJECTS, projectsCache);
+    saveToStorage(STORAGE_KEYS.EMPLOYEES, employeesCache);
+
+    this.addAuditLogEntry({
+      action: 'AI Team Allocation Confirmed',
+      target: `${proj.name} (${projectId})`,
+      details: `Allocated ${employeeIds.length} employees: ${employeeIds.join(', ')}.`,
+      decision: 'Approved'
+    });
+
+    // Notify each employee
+    employeeIds.forEach(empId => {
+      this.addNotification({
+        employeeId: empId,
+        title: 'New Project Staffing Assignment',
+        message: `You were officially assigned to ${proj.name} by Workforce Planning.`,
+        type: 'project',
+        linkTarget: { tab: 'projects', itemId: projectId }
+      });
+    });
+
+    notifyListeners();
+  },
+
+  // WORKLOAD REBALANCING (Core Hackathon Innovation)
+  rebalanceWorkload(fromEmpId, toEmpId, amountPercent = 20) {
+    const fromEmp = this.getEmployee(fromEmpId);
+    const toEmp = this.getEmployee(toEmpId);
+    if (!fromEmp || !toEmp) return;
+
+    employeesCache = employeesCache.map(emp => {
+      if (emp.id === fromEmpId) {
+        const newLoad = Math.max(20, emp.workload - amountPercent);
+        const newHours = Math.round((newLoad / 100) * 40);
+        return {
+          ...emp,
+          workload: newLoad,
+          assignedHours: newHours,
+          availableHours: 40 - newHours,
+          availability: 100 - newLoad
+        };
+      }
+      if (emp.id === toEmpId) {
+        const newLoad = Math.min(95, emp.workload + amountPercent);
+        const newHours = Math.round((newLoad / 100) * 40);
+        return {
+          ...emp,
+          workload: newLoad,
+          assignedHours: newHours,
+          availableHours: 40 - newHours,
+          availability: 100 - newLoad
+        };
+      }
+      return emp;
+    });
+
+    saveToStorage(STORAGE_KEYS.EMPLOYEES, employeesCache);
+
+    this.addAuditLogEntry({
+      action: 'Workload Rebalance Applied',
+      target: `${fromEmp.name} → ${toEmp.name}`,
+      details: `Transferred ${amountPercent}% workload (${Math.round((amountPercent / 100) * 40)}h) to resolve overload.`,
+      decision: 'Applied'
+    });
+
+    // Notify employees
+    this.addNotification({
+      employeeId: fromEmpId,
+      title: 'Workload Rebalance Completed',
+      message: `Management reduced your workload by ${amountPercent}% to ensure milestone balance.`,
+      type: 'workload',
+      linkTarget: { tab: 'home', itemId: null }
+    });
+
+    this.addNotification({
+      employeeId: toEmpId,
+      title: 'Workload Assignment Adjusted',
+      message: `Management allocated +${amountPercent}% project capacity to support team delivery.`,
+      type: 'workload',
+      linkTarget: { tab: 'home', itemId: null }
+    });
+
+    notifyListeners();
+  },
+
+  // RESOURCE REQUESTS REVIEW (Approve / Reject)
+  respondToSupportRequest(requestId, decision, resolutionNotes, adminName = 'Sarah Connor') {
+    const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 16);
+    let targetEmpId = null;
+    let reqType = '';
+
+    requestsCache = requestsCache.map(req => {
+      if (req.id === requestId) {
+        targetEmpId = req.employeeId;
+        reqType = req.type;
+        return {
+          ...req,
+          status: decision === 'Approved' ? 'Approved' : 'Rejected',
+          latestResponse: `${adminName}: ${resolutionNotes}`,
+          resolutionDetails: resolutionNotes,
+          resolutionNotes: resolutionNotes,
+          history: [
+            { timestamp: nowStr, action: decision, by: adminName },
+            ...(req.history || [])
+          ]
+        };
+      }
+      return req;
+    });
+
+    // If Skill Verification was approved, verify employee's skill!
+    if (decision === 'Approved' && reqType === 'Skill Verification' && targetEmpId) {
+      employeesCache = employeesCache.map(emp => {
+        if (emp.id === targetEmpId) {
+          return {
+            ...emp,
+            skills: (emp.skills || []).map(s => {
+              if (s.verificationStatus === 'Pending Verification') {
+                return { ...s, isVerified: true, verificationStatus: 'Verified', dateVerified: nowStr.split(' ')[0] };
+              }
+              return s;
+            })
+          };
+        }
+        return emp;
+      });
+      saveToStorage(STORAGE_KEYS.EMPLOYEES, employeesCache);
+    }
+
+    saveToStorage(STORAGE_KEYS.REQUESTS, requestsCache);
+
+    this.addAuditLogEntry({
+      action: `Resource Request ${decision}`,
+      target: requestId,
+      details: `${decision} by ${adminName}: "${resolutionNotes}"`,
+      decision
+    });
+
+    if (targetEmpId) {
+      this.addNotification({
+        employeeId: targetEmpId,
+        title: `Support Request ${decision} (${requestId})`,
+        message: `${adminName} has ${decision.toLowerCase()} your request: "${resolutionNotes}".`,
+        type: 'request',
+        linkTarget: { tab: 'requests', itemId: requestId }
+      });
+    }
+
+    notifyListeners();
+  },
+
+  // ALERTS CENTER
+  getAlerts() {
+    return [...alertsCache];
+  },
+
+  acknowledgeAlert(alertId) {
+    alertsCache = alertsCache.map(a => a.id === alertId ? { ...a, acknowledged: true } : a);
+    saveToStorage(STORAGE_KEYS.ALERTS, alertsCache);
+    notifyListeners();
+  },
+
+  resolveAlert(alertId) {
+    alertsCache = alertsCache.map(a => a.id === alertId ? { ...a, resolved: true, acknowledged: true } : a);
+    saveToStorage(STORAGE_KEYS.ALERTS, alertsCache);
+    this.addAuditLogEntry({
+      action: 'Resource Alert Resolved',
+      target: alertId,
+      details: `Marked alert ${alertId} as resolved.`,
+      decision: 'Resolved'
+    });
+    notifyListeners();
+  },
+
+  // AUDIT LOG
+  getAuditLog() {
+    return [...auditCache];
+  },
+
+  addAuditLogEntry(entry) {
+    const session = this.getActiveSession();
+    const adminUser = session?.adminUser || ADMIN_USERS[0];
+    const newEntry = {
+      id: `AUD-${String(auditCache.length + 1).padStart(3, '0')}`,
+      adminName: adminUser.name,
+      adminEmail: adminUser.email,
+      action: entry.action,
+      target: entry.target || 'General',
+      details: entry.details,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+      decision: entry.decision || 'Logged'
+    };
+
+    auditCache = [newEntry, ...auditCache];
+    saveToStorage(STORAGE_KEYS.AUDIT, auditCache);
+  },
+
+  // CSV REPORT EXPORT GENERATOR
+  generateCSVReport() {
+    const rows = [
+      ['Employee ID', 'Name', 'Role', 'Department', 'Workload (%)', 'Assigned Hours', 'Capacity Hours', 'Availability (%)', 'Active Projects']
+    ];
+
+    employeesCache.forEach(e => {
+      rows.push([
+        e.id,
+        `"${e.name}"`,
+        `"${e.role}"`,
+        `"${e.department}"`,
+        e.workload,
+        e.assignedHours,
+        e.plannedCapacityHours,
+        e.availability,
+        `"${(e.activeProjectIds || []).join('; ')}"`
+      ]);
+    });
+
+    return rows.map(r => r.join(',')).join('\n');
+  },
+
+  // NOTIFICATIONS (Shared with Employee portal)
   addNotification(notifData) {
     const newNotif = {
       id: `NOTIF-${Date.now().toString().slice(-4)}`,
@@ -421,104 +607,67 @@ export const talentSyncStore = {
       isRead: false,
       linkTarget: notifData.linkTarget || { tab: 'home', itemId: null }
     };
-
     notificationsCache = [newNotif, ...notificationsCache];
     saveToStorage(STORAGE_KEYS.NOTIFICATIONS, notificationsCache);
-    notifyListeners();
-    return newNotif;
   },
 
-  markNotificationAsRead(notifId) {
-    notificationsCache = notificationsCache.map(n => {
-      if (n.id === notifId) {
-        return { ...n, isRead: true };
-      }
-      return n;
-    });
-    saveToStorage(STORAGE_KEYS.NOTIFICATIONS, notificationsCache);
-    notifyListeners();
+  // EMPLOYEE PORTAL QUERIES (Shared cross-portal database)
+  getTasksForEmployee(empId) {
+    return tasksCache.filter(t => t.assignedTo === empId);
   },
 
-  markAllNotificationsAsRead(empId = 'EMP-101') {
-    notificationsCache = notificationsCache.map(n => {
-      if (n.employeeId === empId) {
-        return { ...n, isRead: true };
-      }
-      return n;
-    });
-    saveToStorage(STORAGE_KEYS.NOTIFICATIONS, notificationsCache);
-    notifyListeners();
+  getAllTasks() {
+    return [...tasksCache];
   },
 
-  // LEARNING CENTER
+  getProjectsForEmployee(empId) {
+    const emp = this.getEmployee(empId);
+    if (!emp) return [];
+    const pids = emp.activeProjectIds || [];
+    return projectsCache.filter(p => pids.includes(p.id) || (p.assignedEmployees || []).includes(empId));
+  },
+
+  getRequestsForEmployee(empId) {
+    return requestsCache.filter(r => r.employeeId === empId);
+  },
+
+  getNotificationsForEmployee(empId) {
+    return notificationsCache.filter(n => n.employeeId === empId);
+  },
+
   getLearningCourses() {
     return [...learningCache];
   },
 
-  updateCourseProgress(courseId, { progressStatus, progressPercent, moduleIndex }) {
-    learningCache = learningCache.map(course => {
-      if (course.id === courseId) {
-        const updatedCourse = { ...course };
-        if (progressStatus) updatedCourse.progressStatus = progressStatus;
-        if (progressPercent !== undefined) updatedCourse.progressPercent = progressPercent;
-
-        if (moduleIndex !== undefined && updatedCourse.modules && updatedCourse.modules[moduleIndex]) {
-          const newModules = [...updatedCourse.modules];
-          newModules[moduleIndex].completed = !newModules[moduleIndex].completed;
-          updatedCourse.modules = newModules;
-
-          const totalMods = newModules.length;
-          const completedMods = newModules.filter(m => m.completed).length;
-          updatedCourse.progressPercent = Math.round((completedMods / totalMods) * 100);
-          if (updatedCourse.progressPercent === 100) {
-            updatedCourse.progressStatus = 'Completed';
-          } else if (updatedCourse.progressPercent > 0) {
-            updatedCourse.progressStatus = 'In Progress';
-          }
-        }
-
-        return updatedCourse;
-      }
-      return course;
-    });
-
-    saveToStorage(STORAGE_KEYS.LEARNING, learningCache);
-    notifyListeners();
+  calculateWorkspaceKPIs(empId) {
+    const emp = this.getEmployee(empId);
+    const empTasks = this.getTasksForEmployee(empId);
+    const empProjects = this.getProjectsForEmployee(empId);
+    const activeTasks = empTasks.filter(t => t.status !== 'Completed').length;
+    const completedTasks = empTasks.filter(t => t.status === 'Completed').length;
+    const blockedTasks = empTasks.filter(t => t.isBlocked).length;
+    return {
+      workloadPct: emp?.workload || 0,
+      assignedHours: emp?.assignedHours || 0,
+      plannedCapacityHours: emp?.plannedCapacityHours || 40,
+      availableHours: emp?.availableHours || 0,
+      activeProjectsCount: empProjects.length,
+      activeTasksCount: activeTasks,
+      completedTasksCount: completedTasks,
+      blockedTasksCount: blockedTasks
+    };
   },
 
-  // DERIVED WORKSPACE KPIS
-  calculateWorkspaceKPIs(empId = 'EMP-101') {
-    const emp = this.getEmployee(empId);
-    const tasks = this.getTasksForEmployee(empId);
-    const projects = this.getProjectsForEmployee(empId);
-    const requests = this.getRequestsForEmployee(empId);
+  // ALL REQUESTS FOR ADMIN VIEW
+  getAllRequests() {
+    return [...requestsCache];
+  },
 
-    const activeProjectsCount = projects.filter(p => p.status === 'Active').length;
-    const pendingTasks = tasks.filter(t => t.status !== 'Completed');
-    const pendingTasksCount = pendingTasks.length;
+  getAllSupportRequests() {
+    return this.getAllRequests();
+  },
 
-    // Tasks due within next 7 days or overdue
-    const now = new Date();
-    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-    const tasksDueSoon = pendingTasks.filter(t => {
-      if (!t.dueDate) return false;
-      const d = new Date(t.dueDate);
-      return d <= sevenDaysFromNow;
-    }).length;
-
-    const pendingRequestsCount = requests.filter(r => r.status === 'Submitted' || r.status === 'Under Review').length;
-
-    return {
-      activeProjectsCount,
-      pendingTasksCount,
-      tasksDueSoon,
-      workloadPct: emp ? emp.workload : 0,
-      assignedHours: emp ? emp.assignedHours : 0,
-      plannedCapacityHours: emp ? emp.plannedCapacityHours : 40,
-      availabilityPct: emp ? emp.availability : 0,
-      availableHours: emp ? emp.availableHours : 0,
-      pendingRequestsCount
-    };
+  getWorkforceAlerts() {
+    return this.getAlerts();
   }
 };
