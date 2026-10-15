@@ -1,289 +1,271 @@
-import React, { useState } from 'react';
-import { Header } from './components/Header';
-import { BottomNav } from './components/BottomNav';
-import { AdminDashboard } from './components/AdminDashboard';
-import { WorkforceView } from './components/WorkforceView';
-import { ProjectsView } from './components/ProjectsView';
-import { IntelligenceView } from './components/IntelligenceView';
-import { SimulatorView } from './components/SimulatorView';
-import { EmployeeView } from './components/EmployeeView';
-import { ProjectDetailModal } from './components/ProjectDetailModal';
-import { NotificationDrawer } from './components/NotificationDrawer';
-import { LoginPage } from './components/LoginPage';
-import { INITIAL_EMPLOYEES } from './data/employees';
-import { INITIAL_PROJECTS } from './data/projects';
-import { Signal, Wifi, Battery } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { talentSyncStore } from './data/talentSyncStore';
+import { AuthScreen } from './components/employee/AuthScreen';
+import { OnboardingModal } from './components/employee/OnboardingModal';
+import { AndroidShell } from './components/employee/AndroidShell';
+import { DashboardHome } from './components/employee/DashboardHome';
+import { TasksScreen } from './components/employee/TasksScreen';
+import { ProjectsScreen } from './components/employee/ProjectsScreen';
+import { AIAssistantScreen } from './components/employee/AIAssistantScreen';
+import { ProfileScreen } from './components/employee/ProfileScreen';
+import { TaskDetailModal } from './components/employee/TaskDetailModal';
+import { ProjectDetailModal } from './components/employee/ProjectDetailModal';
+import { WorkloadModal } from './components/employee/WorkloadModal';
+import { SupportRequestsModal } from './components/employee/SupportRequestsModal';
+import { LearningCenterModal } from './components/employee/LearningCenterModal';
+import { NotificationsDrawer } from './components/employee/NotificationsDrawer';
 
 export default function App() {
-  // Main Data States (Stateful for live hackathon demonstration)
-  const [employees, setEmployees] = useState(INITIAL_EMPLOYEES);
-  const [projects, setProjects] = useState(INITIAL_PROJECTS);
+  // Session State
+  const [session, setSession] = useState(() => talentSyncStore.getActiveSession());
+  const [activeTab, setActiveTab] = useState('home'); // 'home', 'tasks', 'projects', 'ai', 'profile'
+  const [activeEmployeeId, setActiveEmployeeId] = useState(session?.employeeId || 'EMP-101');
 
-  // Authentication & Session State
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Can log out to test login portal
-  const [currentUser, setCurrentUser] = useState({
-    role: 'admin',
-    name: 'Sarah Connor',
-    title: 'VP of Workforce Planning'
-  });
+  // Reactive store trigger
+  const [storeTick, setStoreTick] = useState(0);
 
-  // Active Role ('admin' or 'employee')
-  const [activeRole, setActiveRole] = useState('admin');
-  const [adminTab, setAdminTab] = useState('dashboard'); // 'dashboard', 'workforce', 'projects', 'intelligence', 'simulator'
-  const [employeeTab, setEmployeeTab] = useState('home'); // 'home', 'skills', 'projects', 'learning', 'profile'
-  
-  // Active Employee for Employee Portal
-  const [activeEmployeeId, setActiveEmployeeId] = useState('EMP-101'); // Default to Rahul Sharma
-  const activeEmployee = employees.find(e => e.id === activeEmployeeId) || employees[0];
+  useEffect(() => {
+    const unsubscribe = talentSyncStore.subscribe(() => {
+      setStoreTick(t => t + 1);
+    });
+    return unsubscribe;
+  }, []);
 
-  // Modals & Drawers
+  // Synchronized Domain Records for Authenticated Employee
+  const allEmployees = talentSyncStore.getAllEmployees();
+  const activeEmployee = talentSyncStore.getEmployee(activeEmployeeId);
+  const tasks = talentSyncStore.getTasksForEmployee(activeEmployeeId);
+  const projects = talentSyncStore.getProjectsForEmployee(activeEmployeeId);
+  const requests = talentSyncStore.getRequestsForEmployee(activeEmployeeId);
+  const notifications = talentSyncStore.getNotificationsForEmployee(activeEmployeeId);
+  const courses = talentSyncStore.getLearningCourses();
+  const kpis = talentSyncStore.calculateWorkspaceKPIs(activeEmployeeId);
+
+  // Modals & Sheets
+  const [selectedTaskForDetail, setSelectedTaskForDetail] = useState(null);
   const [selectedProjectForDetail, setSelectedProjectForDetail] = useState(null);
+  const [isWorkloadModalOpen, setIsWorkloadModalOpen] = useState(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
+  const [supportInitialData, setSupportInitialData] = useState(null);
+  const [isLearningModalOpen, setIsLearningModalOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [workforceFilterTier, setWorkforceFilterTier] = useState('all');
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [taskProjectFilter, setTaskProjectFilter] = useState('all');
 
-  // LOGIN HANDLER
-  const handleLogin = (userSession) => {
-    setIsLoggedIn(true);
-    setCurrentUser(userSession);
-    setActiveRole(userSession.role);
-    if (userSession.role === 'employee' && userSession.employee) {
-      setActiveEmployeeId(userSession.employee.id);
-      setEmployeeTab('home');
-    } else {
-      setAdminTab('dashboard');
+  // AUTH HANDLERS
+  const handleLogin = (empId, rememberMe = true) => {
+    setActiveEmployeeId(empId);
+    const newSession = { isLoggedIn: true, employeeId: empId };
+    if (rememberMe) {
+      talentSyncStore.setActiveSession(newSession);
     }
+    setSession(newSession);
+    setActiveTab('home');
   };
 
-  // LOGOUT HANDLER
   const handleLogout = () => {
-    setIsLoggedIn(false);
+    const cleared = { isLoggedIn: false, employeeId: 'EMP-101' };
+    talentSyncStore.setActiveSession(cleared);
+    setSession(cleared);
   };
 
-  // WORKLOAD REBALANCE HANDLER (Core Differentiator from Prompt)
-  const handleRebalanceWorkload = (sourceEmpId, targetEmpId, shiftAmount = 20) => {
-    setEmployees(prev => prev.map(emp => {
-      if (emp.id === sourceEmpId) {
-        const newLoad = Math.max(20, emp.workload - shiftAmount);
-        return {
-          ...emp,
-          workload: newLoad,
-          availability: Math.min(80, emp.availability + shiftAmount),
-          availableHours: emp.availableHours + 8
-        };
-      }
-      if (emp.id === targetEmpId) {
-        const newLoad = Math.min(85, emp.workload + shiftAmount);
-        return {
-          ...emp,
-          workload: newLoad,
-          availability: Math.max(15, emp.availability - shiftAmount),
-          availableHours: Math.max(6, emp.availableHours - 8)
-        };
-      }
-      return emp;
-    }));
+  const handleSwitchEmployee = (empId) => {
+    setActiveEmployeeId(empId);
+    talentSyncStore.setActiveSession({ isLoggedIn: true, employeeId: empId });
   };
 
-  // APPROVE & ALLOCATE RECOMMENDED TEAM
-  const handleApproveTeam = (projectId, assignedEmployeeIds) => {
-    // 1. Update Project
-    setProjects(prev => prev.map(proj => {
-      if (proj.id === projectId) {
-        return {
-          ...proj,
-          status: 'Active',
-          stage: 'Fully Staffed',
-          assignedEmployees: assignedEmployeeIds,
-          readinessScore: 98,
-          readinessBreakdown: {
-            skillCoverage: 100,
-            teamAvailability: 92,
-            experienceCoverage: 96,
-            workloadFeasibility: 94
-          }
-        };
-      }
-      return proj;
-    }));
-
-    // 2. Update Employees workload & assigned projects
-    setEmployees(prev => prev.map(emp => {
-      if (assignedEmployeeIds.includes(emp.id)) {
-        const addedWorkload = 25;
-        const newLoad = Math.min(95, emp.workload + addedWorkload);
-        return {
-          ...emp,
-          workload: newLoad,
-          availability: Math.max(5, 100 - newLoad),
-          activeProjects: Array.from(new Set([...(emp.activeProjects || []), projectId]))
-        };
-      }
-      return emp;
-    }));
+  // CROSS-TAB NAVIGATION HELPERS
+  const handleNavigateToTasksFromProject = (projectId) => {
+    setTaskProjectFilter(projectId);
+    setActiveTab('tasks');
   };
 
-  // CREATE NEW PROJECT
-  const handleCreateProject = (newProject) => {
-    setProjects(prev => [newProject, ...prev]);
-    setSelectedProjectForDetail(newProject);
+  const handleOpenSupportFromAnywhere = (prefill = null) => {
+    setSupportInitialData(prefill);
+    setIsSupportModalOpen(true);
   };
 
-  // ALERT ACTION HANDLER
-  const handleAlertAction = (target) => {
-    if (target === 'rebalance') {
-      setActiveRole('admin');
-      setAdminTab('intelligence');
-    } else if (target === 'projects') {
-      setActiveRole('admin');
-      setAdminTab('projects');
-    } else if (target === 'intelligence') {
-      setActiveRole('admin');
-      setAdminTab('intelligence');
-    } else if (target === 'project-alpha') {
-      setActiveRole('admin');
-      const prj = projects.find(p => p.id === 'PRJ-006');
-      if (prj) setSelectedProjectForDetail(prj);
+  const handleNotificationLinkClick = (target) => {
+    if (!target) return;
+    if (target.tab === 'tasks') {
+      setActiveTab('tasks');
+      if (target.itemId) {
+        const t = tasks.find(tsk => tsk.id === target.itemId);
+        if (t) setSelectedTaskForDetail(t);
+      }
+    } else if (target.tab === 'projects') {
+      setActiveTab('projects');
+      if (target.itemId) {
+        const p = projects.find(prj => prj.id === target.itemId);
+        if (p) setSelectedProjectForDetail(p);
+      }
+    } else if (target.tab === 'requests') {
+      setIsSupportModalOpen(true);
+    } else if (target.tab === 'learning') {
+      setIsLearningModalOpen(true);
+    } else if (target.tab === 'profile') {
+      setActiveTab('profile');
+    } else {
+      setActiveTab('home');
     }
   };
 
-  const currentTab = activeRole === 'admin' ? adminTab : employeeTab;
-  const setCurrentTab = activeRole === 'admin' ? setAdminTab : setEmployeeTab;
+  // If Not Authenticated: Render Employee Login Screen
+  if (!session?.isLoggedIn) {
+    return (
+      <>
+        <AuthScreen 
+          onLogin={handleLogin}
+          onOpenOnboarding={() => setIsOnboardingOpen(true)}
+          allEmployees={allEmployees}
+        />
+        <OnboardingModal 
+          isOpen={isOnboardingOpen}
+          onClose={() => setIsOnboardingOpen(false)}
+        />
+      </>
+    );
+  }
 
+  // Authenticated Employee Portal in Authentic Android Shell
   return (
-    <div className="app-viewport-wrapper mode-frame">
-      <div className="iphone-device-wrap">
-        {/* Hardware side buttons */}
-        <div className="iphone-hw-btn btn-action" />
-        <div className="iphone-hw-btn btn-vol-up" />
-        <div className="iphone-hw-btn btn-vol-down" />
-        <div className="iphone-hw-btn btn-power" />
-
-        <div className="mobile-device-shell">
-          {/* If logged out: Render the dedicated Portal Login Page */}
-          {!isLoggedIn ? (
-            <div className="app-container" style={{ paddingBottom: '20px' }}>
-              <div className="mobile-status-bar">
-                <span className="status-time">9:41</span>
-                <div className="mobile-dynamic-island">
-                  <div className="mobile-island-sensor" />
-                  <div className="mobile-island-camera" />
-                </div>
-                <div className="status-icons">
-                  <Signal size={12} strokeWidth={2.4} />
-                  <Wifi size={12} strokeWidth={2.4} />
-                  <div className="ios-battery">
-                    <div className="ios-battery-fill" />
-                  </div>
-                </div>
-              </div>
-              <LoginPage 
-                employees={employees}
-                onLogin={handleLogin}
-              />
-              <div className="iphone-home-indicator" />
-            </div>
-          ) : (
-          /* If logged in: Render the Authenticated Portal */
-          <div className="app-container">
-            {/* Top Sticky Header */}
-            <Header 
-              activeRole={activeRole}
-              activeEmployee={activeEmployee}
-              setActiveEmployee={(emp) => setActiveEmployeeId(emp.id)}
-              employees={employees}
-              unreadAlertCount={4}
-              onOpenAlerts={() => setIsNotificationsOpen(true)}
-              onLogout={handleLogout}
-            />
-
-            {/* MAIN PORTAL PAGES */}
-            {activeRole === 'admin' ? (
-              <>
-                {adminTab === 'dashboard' && (
-                  <AdminDashboard 
-                    employees={employees}
-                    projects={projects}
-                    onNavigateTab={(tab) => setAdminTab(tab)}
-                    onSelectProject={(proj) => setSelectedProjectForDetail(proj)}
-                    onOpenWorkforceFilter={(filter) => {
-                      setWorkforceFilterTier(filter);
-                      setAdminTab('workforce');
-                    }}
-                  />
-                )}
-
-                {adminTab === 'workforce' && (
-                  <WorkforceView 
-                    employees={employees}
-                    initialFilter={workforceFilterTier}
-                    onRebalanceWorkload={handleRebalanceWorkload}
-                  />
-                )}
-
-                {adminTab === 'projects' && (
-                  <ProjectsView 
-                    projects={projects}
-                    employees={employees}
-                    onSelectProject={(proj) => setSelectedProjectForDetail(proj)}
-                    onCreateProject={handleCreateProject}
-                  />
-                )}
-
-                {adminTab === 'intelligence' && (
-                  <IntelligenceView 
-                    employees={employees}
-                    projects={projects}
-                    onRebalanceWorkload={handleRebalanceWorkload}
-                    onSelectProject={(proj) => setSelectedProjectForDetail(proj)}
-                  />
-                )}
-
-                {adminTab === 'simulator' && (
-                  <SimulatorView 
-                    projects={projects}
-                    employees={employees}
-                  />
-                )}
-              </>
-            ) : (
-              /* EMPLOYEE PERSONAL PORTAL */
-              <EmployeeView 
-                activeEmployee={activeEmployee}
-                projects={projects}
-                currentTab={employeeTab}
-              />
-            )}
-
-            {/* Dedicated Bottom Navigation Bar */}
-            <BottomNav 
-              activeRole={activeRole}
-              currentTab={currentTab}
-              setCurrentTab={setCurrentTab}
-            />
-
-            {/* iOS Home Indicator Bar */}
-            <div className="iphone-home-indicator" />
-          </div>
-        )}
-
-        {/* PROJECT DETAIL & AI MATCHING MODAL */}
-        {selectedProjectForDetail && (
-          <ProjectDetailModal 
-            project={selectedProjectForDetail}
-            employees={employees}
-            onClose={() => setSelectedProjectForDetail(null)}
-            onApproveTeam={handleApproveTeam}
+    <>
+      <AndroidShell
+        activeTab={activeTab}
+        onSelectTab={(tab) => {
+          setActiveTab(tab);
+          if (tab === 'tasks') setTaskProjectFilter('all');
+        }}
+        unreadNotifsCount={notifications.filter(n => !n.isRead).length}
+        pendingTasksCount={tasks.filter(t => t.status !== 'Completed').length}
+        activeProjectsCount={projects.length}
+        onOpenNotifications={() => setIsNotificationsOpen(true)}
+        activeEmployee={activeEmployee}
+        allEmployees={allEmployees}
+        onSwitchEmployee={handleSwitchEmployee}
+      >
+        {/* TAB 1: HOME — MY WORKSPACE */}
+        {activeTab === 'home' && (
+          <DashboardHome 
+            employee={activeEmployee}
+            kpis={kpis}
+            projects={projects}
+            tasks={tasks}
+            onNavigateTab={(tab) => setActiveTab(tab)}
+            onOpenTaskDetail={(task) => setSelectedTaskForDetail(task)}
+            onOpenProjectDetail={(proj) => setSelectedProjectForDetail(proj)}
+            onOpenWorkloadModal={() => setIsWorkloadModalOpen(true)}
+            onOpenSupportRequest={handleOpenSupportFromAnywhere}
+            onOpenLearningCenter={() => setIsLearningModalOpen(true)}
           />
         )}
 
-        {/* ACTIONABLE NOTIFICATION DRAWER */}
-        <NotificationDrawer 
-          isOpen={isNotificationsOpen}
-          onClose={() => setIsNotificationsOpen(false)}
-          onActionClick={handleAlertAction}
+        {/* TAB 2: TASKS — TASK MANAGEMENT */}
+        {activeTab === 'tasks' && (
+          <TasksScreen 
+            tasks={tasks}
+            projects={projects}
+            initialProjectId={taskProjectFilter}
+            onOpenTaskDetail={(task) => setSelectedTaskForDetail(task)}
+          />
+        )}
+
+        {/* TAB 3: PROJECTS — ASSIGNED PROJECTS */}
+        {activeTab === 'projects' && (
+          <ProjectsScreen 
+            projects={projects}
+            tasks={tasks}
+            onOpenProjectDetail={(proj) => setSelectedProjectForDetail(proj)}
+            onNavigateToTasks={handleNavigateToTasksFromProject}
+          />
+        )}
+
+        {/* TAB 4: AI ASSISTANT — PERSONALIZED COPILOT */}
+        {activeTab === 'ai' && (
+          <AIAssistantScreen 
+            employee={activeEmployee}
+            tasks={tasks}
+            projects={projects}
+            onOpenTaskDetail={(task) => setSelectedTaskForDetail(task)}
+            onOpenSupportRequest={handleOpenSupportFromAnywhere}
+            onOpenLearningCenter={() => setIsLearningModalOpen(true)}
+          />
+        )}
+
+        {/* TAB 5: PROFILE — EMPLOYEE PROFILE & SETTINGS */}
+        {activeTab === 'profile' && (
+          <ProfileScreen 
+            employee={activeEmployee}
+            onLogout={handleLogout}
+            onOpenSupportRequest={handleOpenSupportFromAnywhere}
+            onOpenLearningCenter={() => setIsLearningModalOpen(true)}
+          />
+        )}
+      </AndroidShell>
+
+      {/* MODALS & DRAWERS */}
+      {selectedTaskForDetail && (
+        <TaskDetailModal 
+          task={selectedTaskForDetail}
+          onClose={() => setSelectedTaskForDetail(null)}
+          onNavigateToProjects={() => {
+            setSelectedTaskForDetail(null);
+            setActiveTab('projects');
+          }}
         />
-      </div>
-    </div>
-  </div>
-);
+      )}
+
+      {selectedProjectForDetail && (
+        <ProjectDetailModal 
+          project={selectedProjectForDetail}
+          assignedTasks={tasks.filter(t => t.projectId === selectedProjectForDetail.id)}
+          onClose={() => setSelectedProjectForDetail(null)}
+          onNavigateToTasks={handleNavigateToTasksFromProject}
+        />
+      )}
+
+      {isWorkloadModalOpen && (
+        <WorkloadModal 
+          employee={activeEmployee}
+          tasks={tasks}
+          onClose={() => setIsWorkloadModalOpen(false)}
+          onOpenSupportRequest={handleOpenSupportFromAnywhere}
+        />
+      )}
+
+      {isSupportModalOpen && (
+        <SupportRequestsModal 
+          employeeId={activeEmployeeId}
+          requests={requests}
+          projects={projects}
+          initialForm={supportInitialData}
+          onClose={() => {
+            setIsSupportModalOpen(false);
+            setSupportInitialData(null);
+          }}
+        />
+      )}
+
+      {isLearningModalOpen && (
+        <LearningCenterModal 
+          employee={activeEmployee}
+          courses={courses}
+          onClose={() => setIsLearningModalOpen(false)}
+        />
+      )}
+
+      <NotificationsDrawer 
+        isOpen={isNotificationsOpen}
+        notifications={notifications}
+        employeeId={activeEmployeeId}
+        onClose={() => setIsNotificationsOpen(false)}
+        onNavigateToItem={handleNotificationLinkClick}
+      />
+
+      <OnboardingModal 
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+      />
+    </>
+  );
 }

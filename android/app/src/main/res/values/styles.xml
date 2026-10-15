@@ -1,0 +1,14 @@
+<resources>
+    <style name="Theme.TalentSync" parent="Theme.MaterialComponents.DayNight">
+        <item name="colorPrimary">#14b8a6</item>
+        <item name="colorPrimaryVariant">#0f766e</item>
+        <item name="colorOnPrimary">#ffffff</item>
+        <item name="android:statusBarColor">#ffffff</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.TalentSync.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>
