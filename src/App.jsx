@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -11,6 +11,14 @@ import { NotificationDrawer } from './components/NotificationDrawer';
 import { LoginPage } from './components/LoginPage';
 import { SplashScreen } from './components/SplashScreen';
 import { EmployeePortalWrapper } from './components/employee/EmployeePortalWrapper';
+import { SupabaseModal } from './components/SupabaseModal';
+import { isSupabaseConfigured } from './lib/supabase';
+import { 
+  getEmployees, 
+  getProjects, 
+  saveEmployees, 
+  saveProject 
+} from './lib/supabaseService';
 import { INITIAL_EMPLOYEES } from './data/employees';
 import { INITIAL_PROJECTS } from './data/projects';
 import { Signal, Wifi, ShieldAlert, X } from 'lucide-react';
@@ -19,6 +27,9 @@ export default function App() {
   // Main Data States (Stateful for live hackathon demonstration)
   const [employees, setEmployees] = useState(INITIAL_EMPLOYEES);
   const [projects, setProjects] = useState(INITIAL_PROJECTS);
+  const [isUsingSupabase, setIsUsingSupabase] = useState(false);
+  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
+  const [isLoadingDb, setIsLoadingDb] = useState(false);
 
   // App Opening & Authentication Experience States
   const [showSplash, setShowSplash] = useState(true);
@@ -98,6 +109,31 @@ export default function App() {
     }
   }, [isLoggedIn, activeRole, adminTab]);
 
+  // LOAD DATA FROM SUPABASE (OR FALLBACK TO INITIAL LOCAL DATA)
+  const loadData = useCallback(async () => {
+    if (!isSupabaseConfigured) return;
+    setIsLoadingDb(true);
+    try {
+      const [empRes, prjRes] = await Promise.all([getEmployees(), getProjects()]);
+      if (empRes.isFromDb && empRes.data && empRes.data.length > 0) {
+        setEmployees(empRes.data);
+        setIsUsingSupabase(true);
+      }
+      if (prjRes.isFromDb && prjRes.data && prjRes.data.length > 0) {
+        setProjects(prjRes.data);
+        setIsUsingSupabase(true);
+      }
+    } catch (err) {
+      console.warn('Supabase initialization failed:', err);
+    } finally {
+      setIsLoadingDb(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
   // Handle successful login
   const handleLogin = (credentials) => {
     setIsLoggedIn(true);
@@ -119,6 +155,7 @@ export default function App() {
   // Handle new employee registration from Sign Up flow
   const handleRegisterEmployee = (newEmployee) => {
     setEmployees(prev => [newEmployee, ...prev]);
+    saveEmployees([newEmployee]);
   };
 
   // Handle Tab Switch inside Admin Portal
@@ -127,54 +164,116 @@ export default function App() {
   };
 
   // Handle AI Matching Team Approval
-  const handleApproveTeam = (projectId, approvedTeam) => {
-    setProjects(prev => prev.map(p => {
-      if (p.id === projectId) {
-        return {
-          ...p,
-          assignedTeam: approvedTeam.map(m => m.name),
-          health: 98,
-          readiness: 100,
-          status: 'In Progress'
-        };
-      }
-      return p;
-    }));
+  const handleApproveTeam = (projectId, teamInput) => {
+    const isObjectArray = Array.isArray(teamInput) && teamInput.length > 0 && typeof teamInput[0] === 'object';
+    const assignedIds = isObjectArray ? teamInput.map(m => m.id) : (Array.isArray(teamInput) ? teamInput : []);
+    const assignedNames = isObjectArray ? teamInput.map(m => m.name) : [];
 
-    setEmployees(prev => prev.map(emp => {
-      const isAssigned = approvedTeam.some(m => m.id === emp.id);
-      if (isAssigned) {
-        return {
-          ...emp,
-          workload: Math.min(100, emp.workload + 20),
-          status: emp.workload + 20 > 90 ? 'Critical' : 'Optimal'
-        };
-      }
-      return emp;
-    }));
+    setProjects(prev => {
+      const updated = prev.map(p => {
+        if (p.id === projectId) {
+          const updatedPrj = {
+            ...p,
+            status: 'In Progress',
+            stage: 'Fully Staffed',
+            assignedEmployees: assignedIds.length > 0 ? assignedIds : (p.assignedEmployees || []),
+            assignedTeam: assignedNames.length > 0 ? assignedNames : (p.assignedTeam || []),
+            health: 98,
+            readiness: 100,
+            readinessScore: 98,
+            readinessBreakdown: {
+              skillCoverage: 100,
+              teamAvailability: 92,
+              experienceCoverage: 96,
+              workloadFeasibility: 94
+            }
+          };
+          saveProject(updatedPrj);
+          return updatedPrj;
+        }
+        return p;
+      });
+      return updated;
+    });
+
+    setEmployees(prev => {
+      const updated = prev.map(emp => {
+        const matches = assignedIds.length > 0 ? assignedIds.includes(emp.id) : false;
+        if (matches) {
+          const newLoad = Math.min(100, emp.workload + 20);
+          return {
+            ...emp,
+            workload: newLoad,
+            status: newLoad > 90 ? 'Critical' : 'Optimal',
+            availability: Math.max(5, 100 - newLoad),
+            activeProjects: Array.from(new Set([...(emp.activeProjects || []), projectId]))
+          };
+        }
+        return emp;
+      });
+      const affected = updated.filter(e => assignedIds.includes(e.id));
+      if (affected.length > 0) saveEmployees(affected);
+      return updated;
+    });
   };
 
   // Handle Create Project
   const handleCreateProject = (newProject) => {
     setProjects(prev => [newProject, ...prev]);
+    setSelectedProjectForDetail(newProject);
+    saveProject(newProject);
   };
 
-  // Handle Rebalance Workload Trigger
-  const handleRebalanceWorkload = () => {
-    setEmployees(prev => prev.map(emp => {
-      if (emp.workload > 85) {
-        return { ...emp, workload: 78, status: 'Optimal' };
-      }
-      if (emp.workload < 40) {
-        return { ...emp, workload: 65, status: 'Optimal' };
-      }
-      return emp;
-    }));
+  // WORKLOAD REBALANCE HANDLER (Dual-Mode Support)
+  const handleRebalanceWorkload = (sourceEmpId, targetEmpId, shiftAmount = 20) => {
+    if (sourceEmpId && targetEmpId) {
+      setEmployees(prev => {
+        const updated = prev.map(emp => {
+          if (emp.id === sourceEmpId) {
+            const newLoad = Math.max(20, emp.workload - shiftAmount);
+            return {
+              ...emp,
+              workload: newLoad,
+              availability: Math.min(80, emp.availability + shiftAmount),
+              availableHours: (emp.availableHours || 20) + 8
+            };
+          }
+          if (emp.id === targetEmpId) {
+            const newLoad = Math.min(85, emp.workload + shiftAmount);
+            return {
+              ...emp,
+              workload: newLoad,
+              availability: Math.max(15, emp.availability - shiftAmount),
+              availableHours: Math.max(6, (emp.availableHours || 20) - 8)
+            };
+          }
+          return emp;
+        });
+        const affected = updated.filter(e => e.id === sourceEmpId || e.id === targetEmpId);
+        saveEmployees(affected);
+        return updated;
+      });
+    } else {
+      setEmployees(prev => {
+        const updated = prev.map(emp => {
+          if (emp.workload > 85) {
+            return { ...emp, workload: 78, status: 'Optimal' };
+          }
+          if (emp.workload < 40) {
+            return { ...emp, workload: 65, status: 'Optimal' };
+          }
+          return emp;
+        });
+        saveEmployees(updated);
+        return updated;
+      });
+    }
   };
 
   // Handle Notification Alert Action
   const handleAlertAction = (alert) => {
     setIsNotificationsOpen(false);
+    if (!alert) return;
     if (alert.type === 'overload') {
       setWorkforceFilterTier('critical');
       handleTabChange('workforce');
@@ -187,7 +286,7 @@ export default function App() {
     }
   };
 
-  // If authenticated as Employee, render Kalyani's full TalentSync AI Android Portal
+  // If authenticated as Employee, render full TalentSync AI Android Portal
   if (isLoggedIn && activeRole === 'employee') {
     return (
       <EmployeePortalWrapper 
@@ -281,7 +380,7 @@ export default function App() {
                 </div>
               )}
 
-              {/* Top Static Header with Dynamic Island & Switcher */}
+              {/* Top Static Header with Dynamic Island & Switcher & Supabase */}
               <Header 
                 activeRole={activeRole}
                 activeEmployee={activeEmployee}
@@ -291,6 +390,8 @@ export default function App() {
                 onOpenAlerts={() => setIsNotificationsOpen(true)}
                 onLogout={handleLogout}
                 onSwitchRole={(role) => setActiveRole(role)}
+                onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
+                isUsingSupabase={isUsingSupabase}
               />
 
               {/* SCROLLABLE MAIN PORTAL CONTENT AREA */}
@@ -369,6 +470,14 @@ export default function App() {
             isOpen={isNotificationsOpen}
             onClose={() => setIsNotificationsOpen(false)}
             onActionClick={handleAlertAction}
+          />
+
+          {/* SUPABASE CONNECTION & SYNC MODAL */}
+          <SupabaseModal 
+            isOpen={isSupabaseModalOpen}
+            onClose={() => setIsSupabaseModalOpen(false)}
+            onRefreshData={loadData}
+            isUsingSupabase={isUsingSupabase}
           />
         </div>
       </div>

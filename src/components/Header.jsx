@@ -9,7 +9,8 @@ import {
   Wifi,
   Battery,
   Signal,
-  Shield
+  Shield,
+  Database
 } from 'lucide-react';
 
 export function Header({
@@ -20,7 +21,9 @@ export function Header({
   unreadAlertCount,
   onOpenAlerts,
   onLogout,
-  onSwitchRole
+  onSwitchRole,
+  onOpenSupabaseModal,
+  isUsingSupabase
 }) {
   return (
     <div className="app-top-nav-zone">
@@ -60,7 +63,7 @@ export function Header({
             </div>
           </div>
 
-          {/* Header Controls: Switch Role, Notifications, Logout */}
+          {/* Header Controls: Switch Role, Supabase, Notifications, Logout */}
           <div className="header-actions">
             {/* Quick Switch to Employee Portal */}
             {activeRole === 'admin' && onSwitchRole && (
@@ -73,6 +76,27 @@ export function Header({
                 <UserCheck size={15} />
               </button>
             )}
+
+            {/* Supabase Status / Config Button */}
+            <button 
+              className="icon-btn" 
+              onClick={onOpenSupabaseModal}
+              title={isUsingSupabase ? "Supabase: Connected" : "Supabase: Local Mode (Click to configure)"}
+              style={{ position: 'relative', color: isUsingSupabase ? '#38bdf8' : '#94a3b8' }}
+            >
+              <Database size={15} />
+              <span 
+                style={{
+                  position: 'absolute',
+                  top: '4px',
+                  right: '4px',
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: isUsingSupabase ? '#10b981' : '#f59e0b'
+                }} 
+              />
+            </button>
 
             {/* Notifications */}
             {activeRole === 'admin' && (
