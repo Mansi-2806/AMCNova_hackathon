@@ -306,7 +306,8 @@ export function AdminDashboardView({
                 className="alert-quick-act-btn"
                 onClick={onOpenAlerts}
               >
-                Inspect
+                <span>Inspect Alert</span>
+                <ChevronRight size={13} />
               </button>
             </div>
           ))}
