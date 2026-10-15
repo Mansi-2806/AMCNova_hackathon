@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "node src/__tests__/runTests.js"
+    "test": "node src/__tests__/runTests.js && node src/__tests__/adminPortalTests.js"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",

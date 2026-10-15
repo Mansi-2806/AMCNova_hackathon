@@ -1,4 +1,25 @@
-// TalentSync AI — Employee Portal Centralized Domain Data Models & Mock Database
+// TalentSync AI — Centralized Domain Data Models & Mock Database (Shared by Admin & Employee Portals)
+
+export const ADMIN_USERS = [
+  {
+    id: 'ADM-001',
+    name: 'Sarah Connor',
+    role: 'VP of Workforce Planning',
+    email: 'director.hr@talentsync.ai',
+    department: 'People Operations & Workforce Intelligence',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
+    permissions: ['all', 'allocate', 'rebalance', 'approve_requests', 'manage_projects', 'simulations']
+  },
+  {
+    id: 'ADM-002',
+    name: 'Alex Mercer',
+    role: 'Chief Resource Planning Officer',
+    email: 'admin@talentsync.ai',
+    department: 'Global Engineering Operations',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
+    permissions: ['all']
+  }
+];
 
 export const INITIAL_EMPLOYEES_DATA = [
   {
@@ -19,6 +40,7 @@ export const INITIAL_EMPLOYEES_DATA = [
     availableHours: 3,
     availability: 8, // 8% free
     activeProjectIds: ['PRJ-001', 'PRJ-002'],
+    status: 'Active',
     skills: [
       { id: 'SK-01', name: 'Python', category: 'Backend', proficiency: 'Expert', years: 6, isVerified: true, verificationStatus: 'Verified', dateVerified: '2025-11-12' },
       { id: 'SK-02', name: 'AWS Cloud Architecture', category: 'Cloud', proficiency: 'Expert', years: 5, isVerified: true, verificationStatus: 'Verified', dateVerified: '2026-02-18' },
@@ -59,23 +81,25 @@ export const INITIAL_EMPLOYEES_DATA = [
     name: 'Priya Patel',
     role: 'Cloud Infrastructure Associate',
     department: 'DevOps & Cloud',
-    location: 'Pune, India',
+    location: 'Pune, India (Hybrid)',
     totalExperience: 3,
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
     email: 'priya.p@talentsync.ai',
     phone: '+91 98111 22334',
     emergencyContact: 'Rajesh Patel (+91 98111 22335)',
-    summary: 'Cloud Engineer specializing in Terraform infrastructure as code, AWS automation, and CI/CD pipelines.',
-    workload: 35, // HEALTHY / AVAILABLE
+    summary: 'Cloud Engineer specializing in Terraform infrastructure as code, AWS automation, and CI/CD pipelines. Highly available for allocation.',
+    workload: 35, // AVAILABLE (35%)
     plannedCapacityHours: 40,
     assignedHours: 14,
     availableHours: 26,
     availability: 65,
     activeProjectIds: ['PRJ-003'],
+    status: 'Active',
     skills: [
       { id: 'SK-11', name: 'Python', category: 'Backend', proficiency: 'Intermediate', years: 3, isVerified: true, verificationStatus: 'Verified' },
       { id: 'SK-12', name: 'AWS Cloud Architecture', category: 'Cloud', proficiency: 'Intermediate', years: 2.5, isVerified: true, verificationStatus: 'Verified' },
-      { id: 'SK-13', name: 'Terraform', category: 'DevOps', proficiency: 'Intermediate', years: 2, isVerified: true, verificationStatus: 'Verified' }
+      { id: 'SK-13', name: 'Terraform', category: 'DevOps', proficiency: 'Intermediate', years: 2, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-14', name: 'Docker & Containers', category: 'DevOps', proficiency: 'Beginner', years: 1.5, isVerified: true, verificationStatus: 'Verified' }
     ],
     certifications: [
       { id: 'CERT-03', name: 'AWS Certified Cloud Practitioner', issuer: 'Amazon Web Services', issueDate: '2024-05-10', verified: true }
@@ -90,6 +114,38 @@ export const INITIAL_EMPLOYEES_DATA = [
     schedulingConflicts: []
   },
   {
+    id: 'EMP-103',
+    name: 'Sarah Jenkins',
+    role: 'Principal AI & Machine Learning Scientist',
+    department: 'AI Research & Data',
+    location: 'San Francisco, USA (Remote)',
+    totalExperience: 8,
+    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80',
+    email: 'sarah.j@talentsync.ai',
+    phone: '+1 415 555 0192',
+    emergencyContact: 'David Jenkins (+1 415 555 0193)',
+    summary: 'Lead AI researcher specialized in distributed deep learning, PyTorch transformer inference, vector embeddings, and real-time fraud mitigation heuristics.',
+    workload: 65, // HEALTHY
+    plannedCapacityHours: 40,
+    assignedHours: 26,
+    availableHours: 14,
+    availability: 35,
+    activeProjectIds: ['PRJ-001'],
+    status: 'Active',
+    skills: [
+      { id: 'SK-31', name: 'Machine Learning / AI', category: 'AI / ML', proficiency: 'Expert', years: 8, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-32', name: 'Python', category: 'Backend', proficiency: 'Expert', years: 8, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-33', name: 'PyTorch / TensorFlow', category: 'AI / ML', proficiency: 'Expert', years: 6, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-34', name: 'Data Analytics', category: 'Data', proficiency: 'Expert', years: 7, isVerified: true, verificationStatus: 'Verified' }
+    ],
+    certifications: [
+      { id: 'CERT-04', name: 'TensorFlow Developer Certificate', issuer: 'Google', issueDate: '2023-10-12', verified: true }
+    ],
+    trainingRecords: [],
+    weeklyWorkloadTrends: [],
+    schedulingConflicts: []
+  },
+  {
     id: 'EMP-104',
     name: 'Marcus Chen',
     role: 'Senior Staff Frontend Architect',
@@ -101,15 +157,189 @@ export const INITIAL_EMPLOYEES_DATA = [
     phone: '+65 9123 4567',
     emergencyContact: 'Evelyn Chen (+65 9123 4568)',
     summary: 'Senior Staff Frontend Architect specialized in React, TypeScript, high-performance web applications, and Design Systems.',
-    workload: 85,
+    workload: 85, // HIGH LOAD
     plannedCapacityHours: 40,
     assignedHours: 34,
     availableHours: 6,
     availability: 15,
-    activeProjectIds: ['PRJ-002'],
+    activeProjectIds: ['PRJ-002', 'PRJ-004'],
+    status: 'Active',
     skills: [
       { id: 'SK-21', name: 'React / Next.js', category: 'Frontend', proficiency: 'Expert', years: 7, isVerified: true, verificationStatus: 'Verified' },
-      { id: 'SK-22', name: 'TypeScript', category: 'Frontend', proficiency: 'Expert', years: 6, isVerified: true, verificationStatus: 'Verified' }
+      { id: 'SK-22', name: 'TypeScript', category: 'Frontend', proficiency: 'Expert', years: 6, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-23', name: 'UI/UX Design', category: 'Design', proficiency: 'Intermediate', years: 4, isVerified: true, verificationStatus: 'Verified' }
+    ],
+    certifications: [],
+    trainingRecords: [],
+    weeklyWorkloadTrends: [],
+    schedulingConflicts: []
+  },
+  {
+    id: 'EMP-105',
+    name: 'Elena Rostova',
+    role: 'Senior Data Platform Engineer',
+    department: 'Data Analytics & Engineering',
+    location: 'Berlin, Germany',
+    totalExperience: 5.5,
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80',
+    email: 'elena.r@talentsync.ai',
+    phone: '+49 151 2345678',
+    emergencyContact: 'Viktor Rostov (+49 151 2345679)',
+    summary: 'Apache Kafka streaming pipelines, Snowflake data warehouses, and DBT data model orchestration specialist.',
+    workload: 55, // HEALTHY
+    plannedCapacityHours: 40,
+    assignedHours: 22,
+    availableHours: 18,
+    availability: 45,
+    activeProjectIds: ['PRJ-004'],
+    status: 'Active',
+    skills: [
+      { id: 'SK-41', name: 'Data Analytics', category: 'Data', proficiency: 'Expert', years: 5, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-42', name: 'Python', category: 'Backend', proficiency: 'Advanced', years: 4, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-43', name: 'Kafka & Streaming', category: 'Data', proficiency: 'Expert', years: 4, isVerified: true, verificationStatus: 'Verified' }
+    ],
+    certifications: [],
+    trainingRecords: [],
+    weeklyWorkloadTrends: [],
+    schedulingConflicts: []
+  },
+  {
+    id: 'EMP-106',
+    name: 'Jordan Taylor',
+    role: 'Lead UI/UX Product Designer',
+    department: 'Product Design & Research',
+    location: 'Austin, USA (Hybrid)',
+    totalExperience: 6,
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80',
+    email: 'jordan.t@talentsync.ai',
+    phone: '+1 512 555 0188',
+    emergencyContact: 'Morgan Taylor (+1 512 555 0189)',
+    summary: 'Design systems creator, mobile UX specialist, accessibility compliance lead (WCAG 2.2 AA).',
+    workload: 70, // HEALTHY
+    plannedCapacityHours: 40,
+    assignedHours: 28,
+    availableHours: 12,
+    availability: 30,
+    activeProjectIds: ['PRJ-001', 'PRJ-004'],
+    status: 'Active',
+    skills: [
+      { id: 'SK-51', name: 'UI/UX Design', category: 'Design', proficiency: 'Expert', years: 6, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-52', name: 'Figma & Design Systems', category: 'Design', proficiency: 'Expert', years: 6, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-53', name: 'Mobile Interaction Design', category: 'Design', proficiency: 'Advanced', years: 4, isVerified: true, verificationStatus: 'Verified' }
+    ],
+    certifications: [],
+    trainingRecords: [],
+    weeklyWorkloadTrends: [],
+    schedulingConflicts: []
+  },
+  {
+    id: 'EMP-107',
+    name: 'Vikram Malhotra',
+    role: 'Senior QA Automation & Chaos Engineer',
+    department: 'Quality Assurance & Testing',
+    location: 'Hyderabad, India',
+    totalExperience: 5,
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
+    email: 'vikram.m@talentsync.ai',
+    phone: '+91 97000 11223',
+    emergencyContact: 'Kavita Malhotra (+91 97000 11224)',
+    summary: 'End-to-end automation with Playwright, performance load testing with Locust, and AWS Fault Injection Simulator chaos drills.',
+    workload: 80, // HIGH LOAD
+    plannedCapacityHours: 40,
+    assignedHours: 32,
+    availableHours: 8,
+    availability: 20,
+    activeProjectIds: ['PRJ-002'],
+    status: 'Active',
+    skills: [
+      { id: 'SK-61', name: 'QA Automation', category: 'QA', proficiency: 'Expert', years: 5, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-62', name: 'Python', category: 'Backend', proficiency: 'Advanced', years: 4, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-63', name: 'Performance Load Testing', category: 'QA', proficiency: 'Expert', years: 4, isVerified: true, verificationStatus: 'Verified' }
+    ],
+    certifications: [],
+    trainingRecords: [],
+    weeklyWorkloadTrends: [],
+    schedulingConflicts: []
+  },
+  {
+    id: 'EMP-108',
+    name: 'Maya Lin',
+    role: 'Technical Project Operations Manager',
+    department: 'Project Operations & Governance',
+    location: 'Toronto, Canada',
+    totalExperience: 7,
+    avatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80',
+    email: 'maya.l@talentsync.ai',
+    phone: '+1 416 555 0144',
+    emergencyContact: 'Sam Lin (+1 416 555 0145)',
+    summary: 'Agile transformation lead, SOC2 compliance audit orchestrator, and multi-team sprint governance coordinator.',
+    workload: 60, // HEALTHY
+    plannedCapacityHours: 40,
+    assignedHours: 24,
+    availableHours: 16,
+    availability: 40,
+    activeProjectIds: ['PRJ-001', 'PRJ-003'],
+    status: 'Active',
+    skills: [
+      { id: 'SK-71', name: 'Project Governance', category: 'Management', proficiency: 'Expert', years: 7, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-72', name: 'Agile & Scrum Operations', category: 'Management', proficiency: 'Expert', years: 6, isVerified: true, verificationStatus: 'Verified' }
+    ],
+    certifications: [],
+    trainingRecords: [],
+    weeklyWorkloadTrends: [],
+    schedulingConflicts: []
+  },
+  {
+    id: 'EMP-109',
+    name: 'Alex Thorne',
+    role: 'Junior Full-Stack Engineer',
+    department: 'Software Engineering',
+    location: 'London, UK (Hybrid)',
+    totalExperience: 2,
+    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&q=80',
+    email: 'alex.t@talentsync.ai',
+    phone: '+44 20 7946 0912',
+    emergencyContact: 'Claire Thorne (+44 20 7946 0913)',
+    summary: 'Full-stack software engineer with React and Node.js foundation. Currently in rotational bench period with high availability for new projects.',
+    workload: 20, // UNDERUTILIZED (<30%)
+    plannedCapacityHours: 40,
+    assignedHours: 8,
+    availableHours: 32,
+    availability: 80,
+    activeProjectIds: ['PRJ-003'],
+    status: 'Active',
+    skills: [
+      { id: 'SK-81', name: 'React / Next.js', category: 'Frontend', proficiency: 'Intermediate', years: 2, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-82', name: 'TypeScript', category: 'Frontend', proficiency: 'Intermediate', years: 2, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-83', name: 'Node.js / Express', category: 'Backend', proficiency: 'Intermediate', years: 2, isVerified: true, verificationStatus: 'Verified' }
+    ],
+    certifications: [],
+    trainingRecords: [],
+    weeklyWorkloadTrends: [],
+    schedulingConflicts: []
+  },
+  {
+    id: 'EMP-110',
+    name: 'Zoe Martinez',
+    role: 'Cybersecurity & SecOps Specialist',
+    department: 'Information Security',
+    location: 'Denver, USA (Remote)',
+    totalExperience: 4.5,
+    avatar: 'https://images.unsplash.com/photo-1534751516642-a171ed287413?auto=format&fit=crop&w=300&q=80',
+    email: 'zoe.m@talentsync.ai',
+    phone: '+1 303 555 0167',
+    emergencyContact: 'Carlos Martinez (+1 303 555 0168)',
+    summary: 'Cloud security posture management (CSPM), container vulnerability scanning, and IAM privilege hardening.',
+    workload: 45, // HEALTHY
+    plannedCapacityHours: 40,
+    assignedHours: 18,
+    availableHours: 22,
+    availability: 55,
+    activeProjectIds: [],
+    status: 'Active',
+    skills: [
+      { id: 'SK-91', name: 'Cybersecurity & SecOps', category: 'Security', proficiency: 'Expert', years: 4.5, isVerified: true, verificationStatus: 'Verified' },
+      { id: 'SK-92', name: 'AWS Cloud Architecture', category: 'Cloud', proficiency: 'Advanced', years: 3.5, isVerified: true, verificationStatus: 'Verified' }
     ],
     certifications: [],
     trainingRecords: [],
@@ -130,78 +360,82 @@ export const INITIAL_PROJECTS_DATA = [
       'Integrate mTLS authentication and OAuth2 token introspection across 12 microservices'
     ],
     status: 'Active',
+    stage: 'In Development',
+    priority: 'Critical',
     employeeRole: 'Lead Cloud Backend Architect',
     responsibilities: [
       'Lead infrastructure architecture & database clustering on AWS',
-      'Implement real-time microservices in Python / FastAPI with asyncio concurrency',
-      'Oversee load testing, database failover rehearsals, and zero-trust security compliance'
+      'Implement real-time microservices in Python / FastAPI with asyncio concurrency'
     ],
     progress: 78,
     nextMilestone: 'Beta Milestone & Chaos Resiliency Testing',
     milestoneDate: '2026-10-25',
     deadline: '2026-12-30',
     startDate: '2026-06-01',
-    teamSize: 6,
+    requiredTeamSize: 6,
+    assignedEmployees: ['EMP-101', 'EMP-103', 'EMP-106', 'EMP-108'],
     teamMembers: [
       { id: 'EMP-101', name: 'Rahul Sharma', role: 'Lead Cloud Architect', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' },
       { id: 'EMP-103', name: 'Sarah Jenkins', role: 'Principal AI Scientist', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80' },
-      { id: 'EMP-111', name: 'David Kim', role: 'Data Engineer', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80' }
+      { id: 'EMP-106', name: 'Jordan Taylor', role: 'Lead Product Designer', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80' },
+      { id: 'EMP-108', name: 'Maya Lin', role: 'Project Operations', avatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=150&q=80' }
+    ],
+    requiredSkills: [
+      { skill: 'Python', proficiency: 'Expert', minExperience: 4 },
+      { skill: 'AWS Cloud Architecture', proficiency: 'Expert', minExperience: 4 },
+      { skill: 'Machine Learning / AI', proficiency: 'Expert', minExperience: 5 },
+      { skill: 'UI/UX Design', proficiency: 'Advanced', minExperience: 3 }
     ],
     announcements: [
-      { id: 'ANN-01', date: '2026-10-12', title: 'Sprint 14 Freeze', content: 'Feature freeze begins this Thursday for Beta release staging.' },
-      { id: 'ANN-02', date: '2026-10-05', title: 'Security Audit Sign-Off', content: 'Preliminary static code analysis passed with zero high-severity findings.' }
+      { id: 'ANN-01', date: '2026-10-12', title: 'Sprint 14 Freeze', content: 'Feature freeze begins this Thursday for Beta release staging.' }
     ],
     resources: [
-      { name: 'System Architecture RFC', type: 'Design Doc', url: 'https://internal.talentsync.ai/rfc/omni-ai' },
-      { name: 'API Swagger Documentation', type: 'API Specs', url: 'https://api.omni-ai.internal/docs' },
-      { name: 'Grafana Telemetry Dashboard', type: 'Observability', url: 'https://grafana.internal/d/omni-ai-prod' }
+      { name: 'System Architecture RFC', type: 'Design Doc', url: 'https://internal.talentsync.ai/rfc/omni-ai' }
     ]
   },
   {
     id: 'PRJ-002',
     name: 'Cloud Native Telemetry Mesh',
     client: 'Apex Health Systems',
-    description: 'Zero-trust real-time patient telemetry monitoring across multi-region cloud infrastructure with strict HIPAA security compliance and edge sensor ingestion.',
+    description: 'Zero-trust real-time patient telemetry monitoring across multi-region cloud infrastructure with strict HIPAA security compliance.',
     objectives: [
       'Ingest 250,000 real-time biometric metrics per second',
-      'Guarantee 99.999% system availability with automated failover',
-      'Pass third-party SOC2 Type II and HIPAA automated compliance controls'
+      'Guarantee 99.999% system availability with automated failover'
     ],
     status: 'Active',
+    stage: 'Deployment Phase',
+    priority: 'High',
     employeeRole: 'Principal Infrastructure Lead',
-    responsibilities: [
-      'Configure WebSocket telemetry ingest nodes with eBPF network kernel acceleration',
-      'Establish Prometheus & Grafana distributed metric alerting and dead-letter queues',
-      'Ensure encrypted at-rest and in-transit patient biometric data flow'
-    ],
+    responsibilities: ['Configure WebSocket telemetry ingest nodes with eBPF network kernel acceleration'],
     progress: 62,
     nextMilestone: 'Zero-Trust HIPAA Penetration Audit',
     milestoneDate: '2026-10-24',
     deadline: '2026-11-30',
     startDate: '2026-04-15',
-    teamSize: 5,
+    requiredTeamSize: 5,
+    assignedEmployees: ['EMP-101', 'EMP-104', 'EMP-107'],
     teamMembers: [
       { id: 'EMP-101', name: 'Rahul Sharma', role: 'Infrastructure Lead', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' },
-      { id: 'EMP-104', name: 'Marcus Chen', role: 'Staff Frontend Architect', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' }
+      { id: 'EMP-104', name: 'Marcus Chen', role: 'Staff Frontend Architect', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' },
+      { id: 'EMP-107', name: 'Vikram Malhotra', role: 'Senior QA Engineer', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80' }
     ],
-    announcements: [
-      { id: 'ANN-03', date: '2026-10-14', title: 'HIPAA Pen Test Schedule', content: 'Third-party auditors will initiate penetration tests on Oct 24 09:00 UTC.' }
+    requiredSkills: [
+      { skill: 'AWS Cloud Architecture', proficiency: 'Expert', minExperience: 4 },
+      { skill: 'React / Next.js', proficiency: 'Expert', minExperience: 4 },
+      { skill: 'QA Automation', proficiency: 'Advanced', minExperience: 3 }
     ],
-    resources: [
-      { name: 'HIPAA Compliance Checklist', type: 'Compliance', url: 'https://compliance.internal/hipaa-mesh' },
-      { name: 'Ingest Worker Repo', type: 'GitLab', url: 'https://gitlab.internal/health/telemetry-mesh' }
-    ]
+    announcements: [],
+    resources: []
   },
   {
     id: 'PRJ-003',
     name: 'NextGen Autonomous Logistics',
     client: 'DHL Global Logistics',
     description: 'Route optimization & real-time shipment scheduling leveraging neural network heuristics and edge vehicle telemetry.',
-    objectives: [
-      'Reduce carrier transit deadhead mileage by 18%',
-      'Dynamic dispatch recalculation under 3 seconds per delivery event'
-    ],
+    objectives: ['Reduce carrier transit deadhead mileage by 18%'],
     status: 'Active',
+    stage: 'Core Architecture',
+    priority: 'High',
     employeeRole: 'DevOps & Pipeline Specialist',
     responsibilities: ['Maintain automated Terraform deployments and CI pipelines.'],
     progress: 44,
@@ -209,12 +443,218 @@ export const INITIAL_PROJECTS_DATA = [
     milestoneDate: '2026-11-15',
     deadline: '2027-02-28',
     startDate: '2026-07-01',
-    teamSize: 5,
+    requiredTeamSize: 5,
+    assignedEmployees: ['EMP-102', 'EMP-108', 'EMP-109'],
     teamMembers: [
-      { id: 'EMP-102', name: 'Priya Patel', role: 'Cloud Engineer', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80' }
+      { id: 'EMP-102', name: 'Priya Patel', role: 'Cloud Engineer', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80' },
+      { id: 'EMP-108', name: 'Maya Lin', role: 'Project Lead', avatar: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=150&q=80' },
+      { id: 'EMP-109', name: 'Alex Thorne', role: 'Full-Stack Dev', avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80' }
+    ],
+    requiredSkills: [
+      { skill: 'Terraform', proficiency: 'Intermediate', minExperience: 2 },
+      { skill: 'Python', proficiency: 'Intermediate', minExperience: 2 },
+      { skill: 'React / Next.js', proficiency: 'Intermediate', minExperience: 2 }
     ],
     announcements: [],
     resources: []
+  },
+  {
+    id: 'PRJ-004',
+    name: 'WealthTech Investment Gateway',
+    client: 'Barclays Private Banking',
+    description: 'High-frequency algorithmic trading analytics, portfolio rebalancing engine, and client mobile dashboard.',
+    objectives: ['Process real-time market data ticks and portfolio rebalancing recommendations under 50ms.'],
+    status: 'Active',
+    stage: 'Integration & Testing',
+    priority: 'Medium',
+    employeeRole: 'Staff Frontend & Data Architect',
+    responsibilities: ['Build algorithmic rebalancing visual charts'],
+    progress: 58,
+    nextMilestone: 'Trading Engine Stress Testing',
+    milestoneDate: '2026-11-05',
+    deadline: '2026-12-15',
+    startDate: '2026-05-01',
+    requiredTeamSize: 4,
+    assignedEmployees: ['EMP-104', 'EMP-105', 'EMP-106'],
+    teamMembers: [
+      { id: 'EMP-104', name: 'Marcus Chen', role: 'Frontend Lead', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' },
+      { id: 'EMP-105', name: 'Elena Rostova', role: 'Data Platform Engineer', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80' },
+      { id: 'EMP-106', name: 'Jordan Taylor', role: 'UI/UX Lead', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80' }
+    ],
+    requiredSkills: [
+      { skill: 'React / Next.js', proficiency: 'Expert', minExperience: 5 },
+      { skill: 'Data Analytics', proficiency: 'Expert', minExperience: 4 }
+    ],
+    announcements: [],
+    resources: []
+  },
+  {
+    id: 'PRJ-005',
+    name: 'CyberShield Zero-Trust Ingress Gateway',
+    client: 'Defense & Aerospace Systems',
+    description: 'Hardware-security-module backed ingress proxy with automated token rotation and behavioral anomaly detection.',
+    objectives: ['Deploy zero-trust network perimeter with automated cryptographic certificate rotation.'],
+    status: 'Upcoming',
+    stage: 'Staffing Needed',
+    priority: 'Critical',
+    employeeRole: 'Unassigned',
+    responsibilities: ['Architect cryptographic ingress proxy and SecOps automation'],
+    progress: 10,
+    nextMilestone: 'Team Allocation & Kickoff',
+    milestoneDate: '2026-11-01',
+    deadline: '2027-04-30',
+    startDate: '2026-11-01',
+    requiredTeamSize: 4,
+    assignedEmployees: [], // 0 of 4 positions filled (Staffing Shortage!)
+    teamMembers: [],
+    requiredSkills: [
+      { skill: 'Cybersecurity & SecOps', proficiency: 'Expert', minExperience: 4 },
+      { skill: 'AWS Cloud Architecture', proficiency: 'Expert', minExperience: 4 },
+      { skill: 'Python', proficiency: 'Advanced', minExperience: 3 },
+      { skill: 'Docker & Containers', proficiency: 'Intermediate', minExperience: 2 }
+    ],
+    announcements: [],
+    resources: []
+  },
+  {
+    id: 'PRJ-006',
+    name: 'QuantumEdge AI Predictive Analytics',
+    client: 'MedTech Diagnostics',
+    description: 'Edge computer vision and federated learning model for real-time surgical camera anomaly alerting.',
+    objectives: ['Train lightweight vision transformers running on edge TPU accelerators with 99.4% precision.'],
+    status: 'Upcoming',
+    stage: 'Preliminary Staffing',
+    priority: 'High',
+    employeeRole: 'AI Model Specialist',
+    responsibilities: ['Implement federated learning aggregation protocol'],
+    progress: 15,
+    nextMilestone: 'Model Feasibility Benchmark',
+    milestoneDate: '2026-11-10',
+    deadline: '2027-05-31',
+    startDate: '2026-11-10',
+    requiredTeamSize: 3,
+    assignedEmployees: ['EMP-103'], // 1 of 3 positions filled (2 unfilled)
+    teamMembers: [
+      { id: 'EMP-103', name: 'Sarah Jenkins', role: 'Principal AI Scientist', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80' }
+    ],
+    requiredSkills: [
+      { skill: 'Machine Learning / AI', proficiency: 'Expert', minExperience: 5 },
+      { skill: 'Python', proficiency: 'Expert', minExperience: 4 },
+      { skill: 'Docker & Containers', proficiency: 'Advanced', minExperience: 3 }
+    ],
+    announcements: [],
+    resources: []
+  }
+];
+
+export const INITIAL_RESOURCE_ALERTS = [
+  {
+    id: 'ALT-01',
+    type: 'Overloaded Employee',
+    severity: 'Critical',
+    title: 'Workload Exceeds Threshold: Rahul Sharma (92%)',
+    message: 'Rahul Sharma is assigned 37 hours across 2 active projects with overlapping critical milestones.',
+    affectedEmployeeId: 'EMP-101',
+    affectedEmployeeName: 'Rahul Sharma',
+    affectedProjectId: 'PRJ-001',
+    timestamp: '1 hour ago',
+    acknowledged: false,
+    resolved: false
+  },
+  {
+    id: 'ALT-02',
+    type: 'Staffing Shortage',
+    severity: 'Critical',
+    title: 'Unstaffed Project: CyberShield Ingress (0/4 Staffed)',
+    message: 'Critical priority project starts in 16 days with 0 assigned engineers. Security & Cloud experts needed.',
+    affectedEmployeeId: null,
+    affectedEmployeeName: 'N/A',
+    affectedProjectId: 'PRJ-005',
+    timestamp: '3 hours ago',
+    acknowledged: false,
+    resolved: false
+  },
+  {
+    id: 'ALT-03',
+    type: 'Scheduling Conflict',
+    severity: 'High',
+    title: 'Milestone Conflict: PRJ-001 vs PRJ-002 on Oct 24-25',
+    message: 'Beta Release and HIPAA Pen-Test deliver on the same 48-hour window with shared infrastructure dependencies.',
+    affectedEmployeeId: 'EMP-101',
+    affectedEmployeeName: 'Rahul Sharma',
+    affectedProjectId: 'PRJ-001',
+    timestamp: '5 hours ago',
+    acknowledged: true,
+    resolved: false
+  },
+  {
+    id: 'ALT-04',
+    type: 'Critical Skill Shortage',
+    severity: 'High',
+    title: 'Skill Gap: Machine Learning & Vector Embeddings',
+    message: 'Demand for senior AI practitioners across upcoming pipelines exceeds currently available bench capacity by 35%.',
+    affectedEmployeeId: null,
+    affectedEmployeeName: 'N/A',
+    affectedProjectId: 'PRJ-006',
+    timestamp: '1 day ago',
+    acknowledged: false,
+    resolved: false
+  },
+  {
+    id: 'ALT-05',
+    type: 'Underutilized Employee',
+    severity: 'Medium',
+    title: 'Bench Allocation Opportunity: Alex Thorne (20%)',
+    message: 'Alex Thorne has 32 hours of available weekly capacity suitable for frontend/fullstack assignments.',
+    affectedEmployeeId: 'EMP-109',
+    affectedEmployeeName: 'Alex Thorne',
+    affectedProjectId: 'PRJ-003',
+    timestamp: '1 day ago',
+    acknowledged: true,
+    resolved: false
+  }
+];
+
+export const INITIAL_AUDIT_LOG = [
+  {
+    id: 'AUD-001',
+    adminName: 'Sarah Connor',
+    adminEmail: 'director.hr@talentsync.ai',
+    action: 'Workforce Allocation Approved',
+    target: 'PRJ-004 (WealthTech Investment Gateway)',
+    details: 'Allocated Marcus Chen, Elena Rostova, and Jordan Taylor to core staffing roster.',
+    timestamp: '2026-10-14 16:30',
+    decision: 'Approved'
+  },
+  {
+    id: 'AUD-002',
+    adminName: 'Sarah Connor',
+    adminEmail: 'director.hr@talentsync.ai',
+    action: 'Resource Request Review',
+    target: 'REQ-2026-081 (Rahul Sharma)',
+    details: 'Changed status to Under Review. Formulated rebalancing proposal to pair Priya Patel on TSK-105.',
+    timestamp: '2026-10-15 09:30',
+    decision: 'In Progress'
+  },
+  {
+    id: 'AUD-003',
+    adminName: 'Alex Mercer',
+    adminEmail: 'admin@talentsync.ai',
+    action: 'Skill Verification Approved',
+    target: 'REQ-2026-064 (Rahul Sharma)',
+    details: 'Verified AWS Certified Solutions Architect Professional credential AWS-PSA-994821.',
+    timestamp: '2026-10-05 14:00',
+    decision: 'Approved'
+  },
+  {
+    id: 'AUD-004',
+    adminName: 'Sarah Connor',
+    adminEmail: 'director.hr@talentsync.ai',
+    action: 'Workload Threshold Configured',
+    target: 'System Settings',
+    details: 'Updated organization high-utilization alert trigger from 90% to 85%.',
+    timestamp: '2026-10-01 10:15',
+    decision: 'System Update'
   }
 ];
 
@@ -225,62 +665,26 @@ export const INITIAL_TASKS_DATA = [
     projectId: 'PRJ-001',
     projectName: 'OmniAI Enterprise Platform',
     title: 'Deploy Multi-Region Aurora PostgreSQL with Cross-Region Replicas',
-    description: 'Configure and provision Amazon Aurora PostgreSQL cluster across us-east-1 and eu-west-1. Establish asynchronous streaming replication, test automated failover RTO under 30 seconds, and benchmark read scalability under 10k connections.',
+    description: 'Configure and provision Amazon Aurora PostgreSQL cluster across us-east-1 and eu-west-1. Establish asynchronous streaming replication, test automated failover RTO under 30 seconds.',
     acceptanceCriteria: [
       { id: 'ac-1', text: 'Terraform script validates in CI pipeline with strict security group egress', completed: true },
       { id: 'ac-2', text: 'Cross-region replication lag is measured < 100ms under 5k writes/sec', completed: true },
-      { id: 'ac-3', text: 'Automated failover drill executed with zero data corruption', completed: false },
-      { id: 'ac-4', text: 'Monitoring alerts linked to Slack #fintech-alerts channel', completed: false }
+      { id: 'ac-3', text: 'Automated failover drill executed with zero data corruption', completed: false }
     ],
     priority: 'Critical',
     status: 'In Progress',
     progress: 75,
-    dueDate: '2026-10-18', // In 3 days
+    dueDate: '2026-10-18',
     estimatedHours: 14,
     dependencies: [],
     notes: [
-      { id: 'n-1', author: 'Rahul Sharma', timestamp: '2026-10-14 11:30', text: 'Initial Terraform cluster successfully deployed in us-east-1 staging. Setting up replication bridge to eu-west-1.' },
-      { id: 'n-2', author: 'Sarah Connor (Manager)', timestamp: '2026-10-14 14:15', text: 'Great progress Rahul! Ensure replication lag metric is pushed to Datadog before Friday.' }
+      { id: 'n-1', author: 'Rahul Sharma', timestamp: '2026-10-14 11:30', text: 'Initial cluster successfully deployed in us-east-1 staging.' }
     ],
     isBlocked: false,
     blockerReason: null,
     hasDeadlineRisk: false,
     deadlineRiskReason: null,
-    history: [
-      { timestamp: '2026-10-12 09:00', action: 'Task Assigned', details: 'Assigned to Rahul Sharma by Sarah Connor' },
-      { timestamp: '2026-10-13 10:15', action: 'Status Changed', details: 'Changed from To Do to In Progress' },
-      { timestamp: '2026-10-14 16:30', action: 'Progress Updated', details: 'Progress updated from 50% to 75%' }
-    ],
-    syncStatus: 'synced'
-  },
-  {
-    id: 'TSK-102',
-    assignedTo: 'EMP-101',
-    projectId: 'PRJ-001',
-    projectName: 'OmniAI Enterprise Platform',
-    title: 'Implement mTLS & OAuth2 Token Introspection for FinTech Gateway',
-    description: 'Build mutual TLS handshaking verification layer and caching token introspection endpoint using Redis to prevent gateway bottleneck during high volume spikes.',
-    acceptanceCriteria: [
-      { id: 'ac-5', text: 'X.509 client certificate verification enforced on /v1/transactions', completed: true },
-      { id: 'ac-6', text: 'Redis caching layer handles token introspection with 5-minute TTL', completed: false },
-      { id: 'ac-7', text: 'Load test completes with 12,000 req/sec without latency degradation', completed: false }
-    ],
-    priority: 'High',
-    status: 'To Do',
-    progress: 25,
-    dueDate: '2026-10-21', // In 6 days
-    estimatedHours: 12,
-    dependencies: ['TSK-101'],
-    notes: [
-      { id: 'n-3', author: 'Rahul Sharma', timestamp: '2026-10-13 16:00', text: 'Awaiting completion of Aurora cluster configuration before running load test harness.' }
-    ],
-    isBlocked: false,
-    blockerReason: null,
-    hasDeadlineRisk: false,
-    deadlineRiskReason: null,
-    history: [
-      { timestamp: '2026-10-12 09:00', action: 'Task Assigned', details: 'Assigned to Rahul Sharma' }
-    ],
+    history: [],
     syncStatus: 'synced'
   },
   {
@@ -289,61 +693,25 @@ export const INITIAL_TASKS_DATA = [
     projectId: 'PRJ-002',
     projectName: 'Cloud Native Telemetry Mesh',
     title: 'Resolve Memory Leak in Telemetry Edge WebSocket Ingestion Worker',
-    description: 'Investigate resident memory growth in Python asyncio worker consuming telemetry packets from Apex medical sensors. Worker restarts every 6 hours due to OOM kill.',
+    description: 'Investigate resident memory growth in Python asyncio worker consuming telemetry packets from Apex medical sensors.',
     acceptanceCriteria: [
-      { id: 'ac-8', text: 'Memory profile snapshot captured using tracemalloc / memray under synthetic load', completed: true },
-      { id: 'ac-9', text: 'Root cause identified and unclosed WebSocket socket references cleaned up', completed: false },
-      { id: 'ac-10', text: '72-hour continuous burn-in test shows flat memory usage under 250MB', completed: false }
+      { id: 'ac-8', text: 'Memory profile snapshot captured using tracemalloc under synthetic load', completed: true },
+      { id: 'ac-9', text: 'Root cause identified and unclosed WebSocket socket references cleaned up', completed: false }
     ],
     priority: 'Critical',
     status: 'Blocked',
     progress: 40,
-    dueDate: '2026-10-16', // TOMORROW / DUE SOON!
+    dueDate: '2026-10-16',
     estimatedHours: 16,
     dependencies: [],
     notes: [
-      { id: 'n-4', author: 'Rahul Sharma', timestamp: '2026-10-15 08:30', text: 'Worker memory profiling points to unreleased C-extension buffer in vendor eBPF network driver. Waiting on patch release from vendor upstream.' }
+      { id: 'n-4', author: 'Rahul Sharma', timestamp: '2026-10-15 08:30', text: 'Waiting on vendor upstream eBPF driver patch.' }
     ],
     isBlocked: true,
-    blockerReason: 'Upstream vendor eBPF driver library has an unreleased memory buffer bug (Issue #419). Vendor ETA is currently unconfirmed.',
+    blockerReason: 'Upstream vendor eBPF driver library has memory buffer bug. Vendor ETA unconfirmed.',
     hasDeadlineRisk: true,
-    deadlineRiskReason: 'Task is due tomorrow Oct 16; without vendor patch, automated HIPAA pen-test on Oct 24 will be blocked.',
-    history: [
-      { timestamp: '2026-10-10 14:00', action: 'Task Assigned', details: 'Assigned to Rahul Sharma' },
-      { timestamp: '2026-10-12 11:00', action: 'Status Changed', details: 'Changed to In Progress' },
-      { timestamp: '2026-10-15 08:30', action: 'Flagged as Blocked', details: 'Reported vendor eBPF library memory leak blocker' }
-    ],
-    syncStatus: 'synced'
-  },
-  {
-    id: 'TSK-104',
-    assignedTo: 'EMP-101',
-    projectId: 'PRJ-001',
-    projectName: 'OmniAI Enterprise Platform',
-    title: 'Author Reusable Terraform Cloud Modules for Staging & Production',
-    description: 'Package VPC peering, IAM least-privilege roles, and AWS KMS envelope encryption into versioned internal Terraform modules with automated documentation.',
-    acceptanceCriteria: [
-      { id: 'ac-11', text: 'Modules version tagged v1.2.0 in internal GitHub registry', completed: true },
-      { id: 'ac-12', text: 'tfsec security scanner passes with zero warnings', completed: true },
-      { id: 'ac-13', text: 'Peer code review approved by DevOps security lead', completed: true }
-    ],
-    priority: 'Medium',
-    status: 'Completed',
-    progress: 100,
-    dueDate: '2026-10-10', // Past
-    estimatedHours: 8,
-    dependencies: [],
-    notes: [
-      { id: 'n-5', author: 'Rahul Sharma', timestamp: '2026-10-10 17:00', text: 'Modules deployed and verified across staging environments.' }
-    ],
-    isBlocked: false,
-    blockerReason: null,
-    hasDeadlineRisk: false,
-    deadlineRiskReason: null,
-    history: [
-      { timestamp: '2026-10-08 09:00', action: 'Task Assigned', details: 'Assigned to Rahul Sharma' },
-      { timestamp: '2026-10-10 17:00', action: 'Task Completed', details: 'Marked completed with 100% progress' }
-    ],
+    deadlineRiskReason: 'Task is due tomorrow; blocks automated HIPAA pen-test on Oct 24.',
+    history: [],
     syncStatus: 'synced'
   },
   {
@@ -355,81 +723,47 @@ export const INITIAL_TASKS_DATA = [
     description: 'Configure real-time latency spike alerts, error rate SLO thresholds, and PagerDuty routing rules for Apex biometric data pipeline.',
     acceptanceCriteria: [
       { id: 'ac-14', text: 'Alertmanager routing matrix defined for P1, P2, and P3 incidents', completed: true },
-      { id: 'ac-15', text: 'Grafana dashboards provisioned via YAML config maps', completed: true },
-      { id: 'ac-16', text: 'Synthetic incident simulation triggers PagerDuty on-call phone escalation', completed: false }
+      { id: 'ac-15', text: 'Grafana dashboards provisioned via YAML config maps', completed: true }
     ],
     priority: 'High',
     status: 'In Progress',
     progress: 60,
-    dueDate: '2026-10-22', // In 7 days
+    dueDate: '2026-10-22',
     estimatedHours: 10,
     dependencies: [],
-    notes: [
-      { id: 'n-6', author: 'Rahul Sharma', timestamp: '2026-10-14 10:00', text: 'Dashboards created. Ready for synthetic paging drill on Monday.' }
-    ],
-    isBlocked: false,
-    blockerReason: null,
-    hasDeadlineRisk: false,
-    deadlineRiskReason: null,
-    history: [
-      { timestamp: '2026-10-11 10:00', action: 'Task Assigned', details: 'Assigned to Rahul Sharma' }
-    ],
-    syncStatus: 'synced'
-  },
-  {
-    id: 'TSK-106',
-    assignedTo: 'EMP-101',
-    projectId: 'PRJ-001',
-    projectName: 'OmniAI Enterprise Platform',
-    title: 'Optimize Distributed Lock Contention on Redis Cache Cluster',
-    description: 'Profile Redis key eviction and redlock mutex acquisition times under synthetic 20,000 transaction/sec burst load to eliminate 8ms thread blocking.',
-    acceptanceCriteria: [
-      { id: 'ac-17', text: 'Benchmark script written in Locust / Python', completed: false },
-      { id: 'ac-18', text: 'Lock timeout tuned from 500ms to 80ms with exponential backoff jitter', completed: false }
-    ],
-    priority: 'Medium',
-    status: 'To Do',
-    progress: 0,
-    dueDate: '2026-10-28',
-    estimatedHours: 8,
-    dependencies: ['TSK-101'],
     notes: [],
     isBlocked: false,
     blockerReason: null,
     hasDeadlineRisk: false,
     deadlineRiskReason: null,
-    history: [
-      { timestamp: '2026-10-13 14:00', action: 'Task Created', details: 'Backlogged for Sprint 15' }
-    ],
+    history: [],
     syncStatus: 'synced'
   },
   {
-    id: 'TSK-107',
+    id: 'TSK-104',
     assignedTo: 'EMP-101',
-    projectId: 'PRJ-002',
-    projectName: 'Cloud Native Telemetry Mesh',
-    title: 'HIPAA Audit Compliance Logging Pipeline Validation',
-    description: 'Ensure all audit logs contain cryptographically hashed employee IDs, immutable AWS S3 Object Lock retention, and zero plaintext PHI.',
+    projectId: 'PRJ-001',
+    projectName: 'OmniAI Enterprise Platform',
+    title: 'Migrate Redis Cache to AWS ElastiCache Cluster',
+    description: 'Decommission legacy self-hosted Redis instance and cut over microservices to Redis 7.0 multi-AZ replication group with encryption at rest.',
     acceptanceCriteria: [
-      { id: 'ac-19', text: 'S3 bucket policy configured with Compliance Mode 7-year lock', completed: true },
-      { id: 'ac-20', text: 'Automated test suite validates zero SSN / medical record numbers leaked in logs', completed: true }
+      { id: 'ac-10', text: 'CloudWatch alarm configured for CPUUtilization and EngineCPUUtilization', completed: true },
+      { id: 'ac-11', text: 'All microservices verify TLS 1.3 mutual handshake', completed: true }
     ],
-    priority: 'High',
-    status: 'In Progress',
-    progress: 85,
-    dueDate: '2026-10-19',
-    estimatedHours: 6,
+    priority: 'Medium',
+    status: 'Completed',
+    progress: 100,
+    dueDate: '2026-10-12',
+    estimatedHours: 8,
     dependencies: [],
     notes: [
-      { id: 'n-7', author: 'Rahul Sharma', timestamp: '2026-10-15 11:00', text: 'Final verification run scheduled with security officer tomorrow.' }
+      { id: 'n-5', author: 'Rahul Sharma', timestamp: '2026-10-12 16:00', text: 'Cluster cutover completed with zero downtime.' }
     ],
     isBlocked: false,
     blockerReason: null,
     hasDeadlineRisk: false,
     deadlineRiskReason: null,
-    history: [
-      { timestamp: '2026-10-12 11:00', action: 'Task Assigned', details: 'Assigned to Rahul Sharma' }
-    ],
+    history: [],
     syncStatus: 'synced'
   }
 ];
@@ -438,12 +772,13 @@ export const INITIAL_SUPPORT_REQUESTS = [
   {
     id: 'REQ-2026-081',
     employeeId: 'EMP-101',
+    employeeName: 'Rahul Sharma',
     type: 'Workload Support',
     projectId: 'PRJ-001',
     projectName: 'OmniAI Enterprise Platform',
     priority: 'High',
     description: 'Workload at 92% with simultaneous critical milestone deadlines on Oct 24 & Oct 25.',
-    reason: 'Both OmniAI Beta release and Telemetry Mesh HIPAA audit occur within 24 hours. Requesting temporary offloading of Telemetry Prometheus tasks (TSK-105) to another engineer to ensure zero quality degradation.',
+    reason: 'Both OmniAI Beta release and Telemetry Mesh HIPAA audit occur within 24 hours. Requesting temporary offloading of Telemetry Prometheus tasks (TSK-105) to Priya Patel (35% load).',
     status: 'Under Review',
     submittedAt: '2026-10-14 16:45',
     latestResponse: 'Sarah Connor (Workforce Manager): Reviewing allocation. Looking to pair Priya Patel on TSK-105 by Thursday.',
@@ -456,6 +791,7 @@ export const INITIAL_SUPPORT_REQUESTS = [
   {
     id: 'REQ-2026-064',
     employeeId: 'EMP-101',
+    employeeName: 'Rahul Sharma',
     type: 'Skill Verification',
     projectId: null,
     projectName: 'N/A',
@@ -474,6 +810,7 @@ export const INITIAL_SUPPORT_REQUESTS = [
   {
     id: 'REQ-2026-052',
     employeeId: 'EMP-101',
+    employeeName: 'Rahul Sharma',
     type: 'Training Request',
     projectId: 'PRJ-001',
     projectName: 'OmniAI Enterprise Platform',
@@ -510,36 +847,6 @@ export const INITIAL_NOTIFICATIONS = [
     timestamp: '4 hours ago',
     isRead: false,
     linkTarget: { tab: 'tasks', itemId: 'TSK-103' }
-  },
-  {
-    id: 'NOTIF-03',
-    employeeId: 'EMP-101',
-    title: 'Workload Support Request Updated',
-    message: 'Sarah Connor updated REQ-2026-081 to "Under Review" with a suggested delegation plan.',
-    type: 'request',
-    timestamp: '1 day ago',
-    isRead: false,
-    linkTarget: { tab: 'requests', itemId: 'REQ-2026-081' }
-  },
-  {
-    id: 'NOTIF-04',
-    employeeId: 'EMP-101',
-    title: 'New AI Learning Recommendation',
-    message: 'TalentSync AI detected a Docker proficiency gap for upcoming Q1 projects. Recommended course added.',
-    type: 'learning',
-    timestamp: '2 days ago',
-    isRead: true,
-    linkTarget: { tab: 'learning', itemId: 'CRS-01' }
-  },
-  {
-    id: 'NOTIF-05',
-    employeeId: 'EMP-101',
-    title: 'Enterprise Architecture All-Hands',
-    message: 'Quarterly engineering roadmap discussion scheduled for Friday at 16:00 UTC.',
-    type: 'announcement',
-    timestamp: '3 days ago',
-    isRead: true,
-    linkTarget: { tab: 'home', itemId: null }
   }
 ];
 
@@ -557,59 +864,7 @@ export const INITIAL_LEARNING_COURSES = [
     progressPercent: 45,
     modules: [
       { title: 'Multi-stage build minimization & scratch base images', completed: true },
-      { title: 'Rootless container daemon & non-root user execution', completed: true },
-      { title: 'Trivy / Grype vulnerability scanning in CI', completed: false },
-      { title: 'Docker daemon metrics & cgroup v2 resource limits', completed: false }
-    ]
-  },
-  {
-    id: 'CRS-02',
-    title: 'Production LLMs & Prompt Engineering Pipelines',
-    targetSkill: 'Machine Learning / AI',
-    category: 'Technical Track',
-    duration: '4 weeks (16 hrs total)',
-    difficulty: 'Advanced',
-    urgency: 'Medium',
-    reason: 'Elevates technical match for AI Decision Orchestrator upcoming roadmap by +18%.',
-    progressStatus: 'Not Started',
-    progressPercent: 0,
-    modules: [
-      { title: 'Streaming LLM token generation with async backpressure', completed: false },
-      { title: 'Vector embeddings with pgvector on Aurora PostgreSQL', completed: false },
-      { title: 'RAG retrieval guardrails and prompt injection defenses', completed: false }
-    ]
-  },
-  {
-    id: 'CRS-03',
-    title: 'Certified Kubernetes Administrator (CKA) Intensive',
-    targetSkill: 'Kubernetes Microservices',
-    category: 'Certification Track',
-    duration: '6 weeks (24 hrs total)',
-    difficulty: 'Advanced',
-    urgency: 'High',
-    reason: 'Directly maps to sponsored Training Request REQ-2026-052.',
-    progressStatus: 'Not Started',
-    progressPercent: 0,
-    modules: [
-      { title: 'Cluster architecture, installation & configuration', completed: false },
-      { title: 'Services, Ingress & CoreDNS networking deep dive', completed: false },
-      { title: 'Troubleshooting worker node failure & etcd snapshots', completed: false }
-    ]
-  },
-  {
-    id: 'CRS-04',
-    title: 'Cross-Functional Engineering Leadership & Technical Writing',
-    targetSkill: 'Leadership & Communication',
-    category: 'Soft Skills Track',
-    duration: '1 week (4 hrs total)',
-    difficulty: 'Intermediate',
-    urgency: 'Low',
-    reason: 'Recommended for Senior Engineers preparing for Staff Architect promotions.',
-    progressStatus: 'Not Started',
-    progressPercent: 0,
-    modules: [
-      { title: 'Writing persuasive RFCs and Technical Decision Records (ADRs)', completed: false },
-      { title: 'Mentoring junior engineers without micro-managing', completed: false }
+      { title: 'Rootless container daemon & non-root user execution', completed: true }
     ]
   }
 ];
