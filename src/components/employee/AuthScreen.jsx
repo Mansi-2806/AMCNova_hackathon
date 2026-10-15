@@ -93,7 +93,7 @@ export function AuthScreen({ onLogin, onOpenOnboarding, allEmployees = [] }) {
         <div className="auth-logo-badge">
           <Sparkles size={32} className="logo-sparkle" />
         </div>
-        <h1 className="auth-app-title">TalentSync AI</h1>
+        <h1 className="auth-app-title">workForc IQ</h1>
         <div className="auth-portal-tag">
           <span className="portal-pill">Employee Portal</span>
           <span className="portal-ver">Android Edition v2.4</span>

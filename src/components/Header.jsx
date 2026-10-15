@@ -52,7 +52,7 @@ export function Header({
             </div>
             <div className="brand-title-wrap">
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span className="brand-name">WorkforceIQ</span>
+                <span className="brand-name">workForc IQ</span>
                 <span className={`badge ${activeRole === 'admin' ? 'badge-teal' : 'badge-cyan'}`} style={{ fontSize: '0.6rem', padding: '2px 6px' }}>
                   {activeRole === 'admin' ? 'HR Manager' : 'Employee'}
                 </span>
@@ -70,7 +70,7 @@ export function Header({
               <button 
                 className="icon-btn" 
                 onClick={() => onSwitchRole('employee')}
-                title="Switch to Employee Portal (TalentSync AI)"
+                title="Switch to Employee Portal (workForc IQ)"
                 style={{ color: '#0f766e', borderColor: 'rgba(20, 184, 166, 0.4)' }}
               >
                 <UserCheck size={15} />

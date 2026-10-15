@@ -689,7 +689,7 @@ export function ProfileScreen({
             </div>
             <div className="modal-scrollable-body modal-info-copy">
               <p>
-                <strong>Strict Tenant & Role Separation:</strong> The TalentSync AI Employee Portal strictly restricts record access to your authenticated employee identifier. You cannot view, edit, or modify other employees' assigned tasks, private compensation, or confidential workforce planning forecasts.
+                <strong>Strict Tenant & Role Separation:</strong> The workForc IQ Employee Portal strictly restricts record access to your authenticated employee identifier. You cannot view, edit, or modify other employees' assigned tasks, private compensation, or confidential workforce planning forecasts.
               </p>
               <p>
                 <strong>Read-Only Governance:</strong> Official project allocations, budget milestones, and capacity ceilings are governed by authorized Workforce Operations administrators. Submitting requests creates traceable tickets for manager evaluation.

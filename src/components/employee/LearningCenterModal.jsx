@@ -72,7 +72,7 @@ export function LearningCenterModal({
         {/* Modal Header */}
         <div className="modal-header">
           <div className="modal-header-meta">
-            <span className="task-id-tag">TalentSync Academy</span>
+            <span className="task-id-tag">workForc IQ Academy</span>
             <span className="section-title-clean">Learning & Upskilling</span>
           </div>
           <button className="close-modal-btn" onClick={onClose} aria-label="Close">✕</button>

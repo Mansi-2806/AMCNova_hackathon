@@ -63,7 +63,7 @@ export function AdminAuthScreen({ onLogin, onSwitchToEmployeePortal, adminUsers 
         <div className="admin-logo-badge">
           <ShieldCheck size={36} />
         </div>
-        <h1 className="admin-app-title">TalentSync AI</h1>
+        <h1 className="admin-app-title">workForc IQ</h1>
         <div className="admin-portal-tag">
           <span className="admin-pill">Admin & Workforce Manager Portal</span>
           <span className="admin-badge">Enterprise Edition</span>

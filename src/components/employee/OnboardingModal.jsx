@@ -18,11 +18,11 @@ export function OnboardingModal({ isOpen, onClose }) {
 
   const slides = [
     {
-      title: 'Welcome to TalentSync AI',
+      title: 'Welcome to workForc IQ',
       subtitle: 'Your Personal Employee Portal',
       icon: Sparkles,
       color: '#14b8a6',
-      content: 'TalentSync AI Employee Portal gives you direct visibility into your daily priorities, active projects, and personal workload without any administrative clutter.',
+      content: 'workForc IQ Employee Portal gives you direct visibility into your daily priorities, active projects, and personal workload without any administrative clutter.',
       highlights: [
         'Personalized workspace dashboard synced with local time',
         'Real-time KPI metrics calculated strictly from your authorized records',

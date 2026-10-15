@@ -49,7 +49,7 @@ export function AndroidShell({
       <div className="frame-mode-toggle-bar">
         <div className="brand-meta-tag">
           <Sparkles size={14} className="text-teal" />
-          <span>TalentSync AI • Android Employee Portal</span>
+          <span>workForc IQ • Android Employee Portal</span>
         </div>
 
         <button 
@@ -116,7 +116,7 @@ export function AndroidShell({
                 <Sparkles size={16} />
               </div>
               <div className="app-bar-title-group">
-                <span className="app-bar-brand-name">TalentSync AI</span>
+                <span className="app-bar-brand-name">workForc IQ</span>
                 <span className="app-bar-tagline">Employee Portal</span>
               </div>
             </div>

@@ -161,14 +161,14 @@ export function PlanningSimulatorView({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `TalentSync_Workforce_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `workForc_IQ_Workforce_Report_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
     talentSyncStore.addAuditLogEntry({
       action: 'Report Exported',
-      target: 'TalentSync_Workforce_Report.csv',
+      target: 'workForc_IQ_Workforce_Report.csv',
       details: 'Workforce Manager exported complete organization utilization CSV report.',
       decision: 'Exported'
     });

@@ -48,7 +48,7 @@ export function AdminShell({
       <div className="frame-mode-toggle-bar admin-mode-bar">
         <div className="brand-meta-tag admin-meta-tag">
           <ShieldCheck size={14} className="text-blue-primary" />
-          <span>TalentSync AI • Admin / Workforce Manager Android App</span>
+          <span>workForc IQ • Admin / Workforce Manager Android App</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -124,7 +124,7 @@ export function AdminShell({
                 <ShieldCheck size={18} />
               </div>
               <div className="app-bar-title-group">
-                <span className="app-bar-brand-name">TalentSync AI</span>
+                <span className="app-bar-brand-name">workForc IQ</span>
                 <span className="app-bar-tagline admin-tagline">Workforce Manager</span>
               </div>
             </div>

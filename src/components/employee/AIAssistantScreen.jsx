@@ -29,7 +29,7 @@ export function AIAssistantScreen({
       id: 'm-init',
       sender: 'assistant',
       timestamp: 'Just now',
-      text: `Hello ${employee?.name?.split(' ')[0] || 'Rahul'}! I am your TalentSync AI Personal Copilot. I analyze your assigned deliverables, detect workload capacity risks, and suggest day-to-day execution priorities with transparent reasoning.`,
+      text: `Hello ${employee?.name?.split(' ')[0] || 'Rahul'}! I am your workForc IQ Personal Copilot. I analyze your assigned deliverables, detect workload capacity risks, and suggest day-to-day execution priorities with transparent reasoning.`,
       quickPrompts: [
         '🎯 Prioritize my daily tasks',
         '⚠️ Analyze my workload & conflicts',
@@ -192,7 +192,7 @@ export function AIAssistantScreen({
             <Bot size={26} />
           </div>
           <div className="ai-persona-meta">
-            <h2 className="ai-title">TalentSync AI Copilot</h2>
+            <h2 className="ai-title">workForc IQ Copilot</h2>
             <div className="ai-sub-badge-row">
               <span className="ai-badge-pill">Personal Workforce Model v2.4</span>
               <span className="ai-connected-tag">
@@ -212,7 +212,7 @@ export function AIAssistantScreen({
           <div key={msg.id} className={`chat-message-bubble ${msg.sender}`}>
             <div className="chat-msg-header">
               <span className="msg-author-tag">
-                {msg.sender === 'assistant' ? 'TalentSync AI' : 'You'}
+                {msg.sender === 'assistant' ? 'workForc IQ' : 'You'}
               </span>
               <span className="msg-time">{msg.timestamp}</span>
             </div>

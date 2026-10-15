@@ -55,8 +55,8 @@ export const INITIAL_EMPLOYEES_DATA = [
       { id: 'CERT-02', name: 'Certified Associate in Python Programming (PCAP)', issuer: 'Python Institute', issueDate: '2023-08-20', expiryDate: 'Lifetime', credentialId: 'PY-PCAP-77312', verified: true }
     ],
     trainingRecords: [
-      { id: 'TRN-01', title: 'Zero-Trust Cloud Security Architecture', provider: 'TalentSync Academy', completionDate: '2026-04-10', hours: 16, score: '98%' },
-      { id: 'TRN-02', title: 'High-Concurrency PostgreSQL Tuning', provider: 'TalentSync Academy', completionDate: '2025-11-28', hours: 12, score: '95%' }
+      { id: 'TRN-01', title: 'Zero-Trust Cloud Security Architecture', provider: 'workForc IQ Academy', completionDate: '2026-04-10', hours: 16, score: '98%' },
+      { id: 'TRN-02', title: 'High-Concurrency PostgreSQL Tuning', provider: 'workForc IQ Academy', completionDate: '2025-11-28', hours: 12, score: '95%' }
     ],
     weeklyWorkloadTrends: [
       { week: 'W1 (Past)', assigned: 36, capacity: 40, loadPct: 90 },
